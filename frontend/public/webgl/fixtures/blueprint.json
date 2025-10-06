@@ -1,0 +1,18 @@
+{
+  "world": "forest",
+  "time": "night",
+  "weather": "feathers_rain",
+  "goal": "explore_mysterious_world",
+  "characters": [
+    {
+      "type": "bird",
+      "role": "guide"
+    },
+    {
+      "type": "tree",
+      "role": "environment"
+    }
+  ],
+  "style": "lowpoly",
+  "mood": "mystic"
+}

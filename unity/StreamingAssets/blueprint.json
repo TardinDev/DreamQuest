@@ -1,0 +1,18 @@
+{
+  "world": "forest",
+  "time": "night",
+  "weather": "feathers_rain",
+  "goal": "follow_bird_to_flying_house",
+  "characters": [
+    {
+      "type": "bird",
+      "role": "guide"
+    },
+    {
+      "type": "house",
+      "float": true
+    }
+  ],
+  "style": "lowpoly",
+  "mood": "mystic"
+}

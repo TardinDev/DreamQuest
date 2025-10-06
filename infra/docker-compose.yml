@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # Redis for job queue and caching
+  redis:
+    image: redis:7-alpine
+    container_name: dreamquest-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI backend
+  api:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.api
+    container_name: dreamquest-api
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=sqlite:///./dreamquest.db
+      - CORS_ORIGINS=http://localhost:3000
+      - MAX_JOBS_ANONYMOUS=3
+      - MAX_JOBS_AUTHENTICATED=10
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../api:/app
+      - ../frontend/public/webgl:/frontend/public/webgl
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # RQ Worker for background jobs
+  worker:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.worker
+    container_name: dreamquest-worker
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../workers:/app
+      - ../frontend/public/webgl:/frontend/public/webgl
+
+  # Next.js frontend
+  frontend:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.frontend
+    container_name: dreamquest-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - api
+    volumes:
+      - ../frontend/public/webgl:/app/public/webgl
+
+  # Nginx reverse proxy (optional for production)
+  nginx:
+    image: nginx:alpine
+    container_name: dreamquest-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - api
+
+volumes:
+  redis_data:

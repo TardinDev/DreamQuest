@@ -1,0 +1,28 @@
+{
+  "name": "dreamquest-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:api\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:api": "cd api && python -m uvicorn main:app --reload --port 8000",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "lint": "npm run lint:frontend && npm run lint:api",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:api": "cd api && ruff check .",
+    "test": "npm run test:frontend && npm run test:api",
+    "test:frontend": "cd frontend && npm run test",
+    "test:api": "cd api && pytest",
+    "test:e2e": "cd frontend && npm run test:e2e",
+    "format": "npm run format:frontend && npm run format:api",
+    "format:frontend": "cd frontend && npm run format",
+    "format:api": "cd api && ruff format ."
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
