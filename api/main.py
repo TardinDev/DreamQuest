@@ -6,7 +6,7 @@ import redis.asyncio as redis
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import jobs, transcribe
+from routes import jobs, transcribe, generate
 
 
 @asynccontextmanager
@@ -41,6 +41,7 @@ app.add_middleware(
 # Routes
 app.include_router(jobs.router, prefix="/v1", tags=["jobs"])
 app.include_router(transcribe.router, prefix="/v1", tags=["transcribe"])
+app.include_router(generate.router, prefix="/v1", tags=["generate"])
 
 
 @app.get("/")

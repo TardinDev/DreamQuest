@@ -14,6 +14,8 @@ export const dreamFormSchema = z.object({
     })
     .optional(),
 
+  outputType: z.enum(['image', 'video', 'game']),
+
   style: z.enum(['lowpoly', 'realistic', 'toon', 'surreal']),
 
   mood: z.enum(['calm', 'tense', 'mystic', 'nostalgic']),

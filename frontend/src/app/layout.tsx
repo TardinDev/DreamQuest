@@ -18,17 +18,17 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={inter.className}>
+    <html lang="fr" className="dark">
+      <body className={`${inter.className} min-h-screen`}>
         {children}
-        <footer className="border-t border-border py-6 mt-auto">
-          <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-            Developed by{' '}
+        <footer className="border-t border-white/10 py-6 mt-auto bg-black">
+          <div className="container mx-auto px-4 text-center text-sm text-white/60">
+            Développé par{' '}
             <a
               href="https://evoubap.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary hover:underline transition-colors"
+              className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
             >
               evoubap.com
             </a>

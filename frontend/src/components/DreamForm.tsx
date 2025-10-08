@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Mic, Loader2 } from 'lucide-react'
+import { Mic, Loader2, Image, Video, Gamepad2 } from 'lucide-react'
 import { dreamFormSchema, type DreamFormValues } from '@/lib/validations'
 import { api } from '@/lib/api'
 import { useDreamQuestStore } from '@/lib/store'
@@ -30,6 +30,7 @@ export function DreamForm() {
   } = useForm<DreamFormValues>({
     resolver: zodResolver(dreamFormSchema),
     defaultValues: {
+      outputType: 'image',
       style: 'lowpoly',
       mood: 'mystic',
       length: 'short',
@@ -73,6 +74,7 @@ export function DreamForm() {
       const response = await api.createJob({
         dreamText: finalDreamText,
         audioUrl: audioUrl || undefined,
+        outputType: data.outputType,
         style: data.style,
         mood: data.mood,
         length: data.length,
@@ -100,10 +102,46 @@ export function DreamForm() {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="dreamText">Describe your dream</Label>
+        <Label htmlFor="outputType">Type de sortie</Label>
+        <div className="grid grid-cols-3 gap-3">
+          <label className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${watch('outputType') === 'image' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}>
+            <input
+              type="radio"
+              value="image"
+              {...register('outputType')}
+              className="sr-only"
+            />
+            <Image className="w-8 h-8" />
+            <span className="text-sm font-medium">Image</span>
+          </label>
+          <label className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${watch('outputType') === 'video' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}>
+            <input
+              type="radio"
+              value="video"
+              {...register('outputType')}
+              className="sr-only"
+            />
+            <Video className="w-8 h-8" />
+            <span className="text-sm font-medium">Vidéo</span>
+          </label>
+          <label className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${watch('outputType') === 'game' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}>
+            <input
+              type="radio"
+              value="game"
+              {...register('outputType')}
+              className="sr-only"
+            />
+            <Gamepad2 className="w-8 h-8" />
+            <span className="text-sm font-medium">Jeu 3D</span>
+          </label>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="dreamText">Décrivez votre rêve</Label>
         <Textarea
           id="dreamText"
-          placeholder="I was flying over a magical forest at night..."
+          placeholder="Je volais au-dessus d'une forêt magique la nuit, avec des papillons lumineux qui me guidaient à travers des arbres ancestraux..."
           rows={6}
           {...register('dreamText')}
           aria-invalid={errors.dreamText ? 'true' : 'false'}
@@ -112,7 +150,7 @@ export function DreamForm() {
           <p className="text-sm text-destructive">{errors.dreamText.message}</p>
         )}
         <p className="text-sm text-muted-foreground">
-          {dreamText?.length || 0} / 2000 characters (min 30)
+          {dreamText?.length || 0} / 2000 caractères (min 30)
         </p>
       </div>
 
@@ -170,7 +208,9 @@ export function DreamForm() {
 
       <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        Generate My Dream World
+        {watch('outputType') === 'image' && 'Générer mon Image de Rêve'}
+        {watch('outputType') === 'video' && 'Générer ma Vidéo de Rêve'}
+        {watch('outputType') === 'game' && 'Générer mon Monde de Rêve'}
       </Button>
     </form>
   )

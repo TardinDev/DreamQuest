@@ -54,6 +54,12 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+  }
+
+  /* Force dark background globally */
+  html, body {
+    background: #000000 !important;
+    min-height: 100vh;
   }
 }

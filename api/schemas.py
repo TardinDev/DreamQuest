@@ -24,6 +24,12 @@ class LengthEnum(str, Enum):
     LONG = "long"
 
 
+class OutputTypeEnum(str, Enum):
+    IMAGE = "image"
+    VIDEO = "video"
+    GAME = "game"
+
+
 class JobStatusEnum(str, Enum):
     QUEUED = "queued"
     ANALYZING = "analyzing"
@@ -36,6 +42,7 @@ class JobStatusEnum(str, Enum):
 class CreateJobRequest(BaseModel):
     dream_text: Optional[str] = Field(None, min_length=30, max_length=2000)
     audio_url: Optional[str] = None
+    output_type: OutputTypeEnum = Field(..., description="Type of output: image, video, or game")
     style: StyleEnum = Field(..., description="Visual style of the world")
     mood: MoodEnum = Field(..., description="Emotional mood of the world")
     length: LengthEnum = Field(..., description="Duration of the experience")
@@ -70,8 +77,11 @@ class Blueprint(BaseModel):
 
 
 class JobResult(BaseModel):
-    webgl_url: str
-    blueprint: Blueprint
+    output_type: OutputTypeEnum
+    webgl_url: Optional[str] = None  # For game output
+    image_url: Optional[str] = None  # For image output
+    video_url: Optional[str] = None  # For video output
+    blueprint: Optional[Blueprint] = None  # For game output
 
 
 class GetJobResponse(BaseModel):
