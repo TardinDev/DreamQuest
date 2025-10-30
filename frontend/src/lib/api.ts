@@ -18,16 +18,18 @@ export interface JobResponse {
   jobId: string
   status: 'queued' | 'analyzing' | 'generating' | 'building' | 'ready' | 'failed'
   progress: number
-  result?: {
-    outputType: 'image' | 'video' | 'game'
-    imageUrl?: string
-    videoUrl?: string
-    webglUrl?: string
-    blueprint?: any
-    prompt?: string
-    storyboard?: string
-  }
+  result?: JobResult
   error?: string
+}
+
+export interface JobResult {
+  outputType: 'image' | 'video' | 'game'
+  imageUrl?: string
+  videoUrl?: string
+  webglUrl?: string
+  blueprint?: Record<string, unknown>
+  prompt?: string
+  storyboard?: string
 }
 
 export interface TranscribePayload {
@@ -100,7 +102,7 @@ class ApiClient {
           user_id: payload.userId,
         }),
       })
-    } catch (error) {
+    } catch {
       // Fallback to mock
       const mockJobId = `mock-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
       return {
@@ -117,7 +119,7 @@ class ApiClient {
     }
 
     try {
-      const response = await this.request<any>(`/v1/jobs/${jobId}`)
+      const response = await this.request<BackendJobResponse>(`/v1/jobs/${jobId}`)
 
       return {
         jobId: response.job_id,
@@ -126,7 +128,7 @@ class ApiClient {
         result: response.result,
         error: response.error,
       }
-    } catch (error) {
+    } catch {
       // Fallback to mock
       return this.getMockJobStatus(jobId)
     }
@@ -214,7 +216,7 @@ class ApiClient {
           audio_url: payload.audioUrl,
         }),
       })
-    } catch (error) {
+    } catch {
       // Fallback to mock
       return {
         text: 'I was flying over a magical forest at night, with glowing butterflies guiding my way through ancient trees.',
@@ -237,6 +239,14 @@ class ApiClient {
       await new Promise((resolve) => setTimeout(resolve, interval))
     }
   }
+}
+
+interface BackendJobResponse {
+  job_id: string
+  status: JobResponse['status']
+  progress: number
+  result?: JobResult
+  error?: string
 }
 
 export const api = new ApiClient()

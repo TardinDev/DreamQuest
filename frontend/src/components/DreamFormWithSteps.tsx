@@ -3,10 +3,18 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Mic, Loader2, ArrowRight, ArrowLeft } from 'lucide-react'
+import {
+  Mic,
+  Loader2,
+  ArrowRight,
+  ArrowLeft,
+  Image as ImageIcon,
+  Video as VideoIcon,
+  Gamepad2 as GamepadIcon,
+} from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { dreamFormSchema, type DreamFormValues } from '@/lib/validations'
-import { api } from '@/lib/api'
+import { api, type JobResponse } from '@/lib/api'
 import { useDreamQuestStore } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -46,6 +54,7 @@ export function DreamFormWithSteps() {
   } = useForm<DreamFormValues>({
     resolver: zodResolver(dreamFormSchema),
     defaultValues: {
+      outputType: 'image',
       style: 'lowpoly',
       mood: 'mystic',
       length: 'short',
@@ -53,6 +62,7 @@ export function DreamFormWithSteps() {
   })
 
   const dreamText = watch('dreamText')
+  const selectedOutputType = watch('outputType')
   const selectedStyle = watch('style')
   const selectedMood = watch('mood')
 
@@ -73,7 +83,7 @@ export function DreamFormWithSteps() {
         setStep(2)
       }
     } else if (step === 2) {
-      valid = await trigger(['style', 'mood', 'length'])
+      valid = await trigger(['outputType', 'style', 'mood', 'length'])
       if (valid) {
         setStep(3)
       }
@@ -103,6 +113,7 @@ export function DreamFormWithSteps() {
       const response = await api.createJob({
         dreamText: finalDreamText,
         audioUrl: audioUrl || undefined,
+        outputType: data.outputType,
         style: data.style,
         mood: data.mood,
         length: data.length,
@@ -110,7 +121,7 @@ export function DreamFormWithSteps() {
 
       addJob({
         jobId: response.jobId,
-        status: response.status as any,
+        status: response.status as JobResponse['status'],
         progress: 0,
       })
     } catch (err) {
@@ -242,6 +253,45 @@ export function DreamFormWithSteps() {
               <p className="text-muted-foreground">Customize the look and feel of your world</p>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="outputType">Output Type</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label
+                  className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    selectedOutputType === 'image'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <input type="radio" value="image" {...register('outputType')} className="sr-only" />
+                  <ImageIcon className="w-8 h-8" />
+                  <span className="text-sm font-medium">Image</span>
+                </label>
+                <label
+                  className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    selectedOutputType === 'video'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <input type="radio" value="video" {...register('outputType')} className="sr-only" />
+                  <VideoIcon className="w-8 h-8" />
+                  <span className="text-sm font-medium">Video</span>
+                </label>
+                <label
+                  className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    selectedOutputType === 'game'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  <input type="radio" value="game" {...register('outputType')} className="sr-only" />
+                  <GamepadIcon className="w-8 h-8" />
+                  <span className="text-sm font-medium">3D World</span>
+                </label>
+              </div>
+            </div>
+
             {/* Interactive Style Preview */}
             <div
               className={`relative h-40 rounded-lg bg-gradient-to-br ${moodPreviewColors[selectedMood]} border border-border transition-all duration-500 flex items-center justify-center overflow-hidden`}
@@ -331,6 +381,9 @@ export function DreamFormWithSteps() {
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">
+                <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm capitalize">
+                  {selectedOutputType}
+                </span>
                 <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
                   {selectedStyle}
                 </span>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { JobResponse } from '@/lib/api'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -27,10 +28,13 @@ export function DreamResult({ job }: DreamResultProps) {
       {outputType === 'image' && result.imageUrl && (
         <Card className="overflow-hidden bg-black border-blue-500/20">
           <div className="relative aspect-square w-full bg-black/20">
-            <img
+            <Image
               src={result.imageUrl}
-              alt="Dream visualization"
-              className="w-full h-full object-contain"
+              alt="Visualisation du rêve"
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 60vw, 600px"
+              unoptimized
             />
           </div>
           <div className="p-6 space-y-4 bg-gradient-to-t from-black/40 to-transparent">

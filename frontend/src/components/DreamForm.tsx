@@ -3,12 +3,11 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Mic, Loader2, Image, Video, Gamepad2 } from 'lucide-react'
+import { Mic, Loader2, Image as ImageIcon, Video, Gamepad2 } from 'lucide-react'
 import { dreamFormSchema, type DreamFormValues } from '@/lib/validations'
-import { api } from '@/lib/api'
+import { api, type JobResponse } from '@/lib/api'
 import { useDreamQuestStore } from '@/lib/store'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
@@ -83,7 +82,7 @@ export function DreamForm() {
       // Add to store (this will trigger JobProgress polling)
       addJob({
         jobId: response.jobId,
-        status: response.status as any,
+        status: response.status as JobResponse['status'],
         progress: 0,
       })
     } catch (err) {
@@ -111,7 +110,7 @@ export function DreamForm() {
               {...register('outputType')}
               className="sr-only"
             />
-            <Image className="w-8 h-8" />
+            <ImageIcon className="w-8 h-8" />
             <span className="text-sm font-medium">Image</span>
           </label>
           <label className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${watch('outputType') === 'video' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}>
@@ -141,7 +140,7 @@ export function DreamForm() {
         <Label htmlFor="dreamText">Décrivez votre rêve</Label>
         <Textarea
           id="dreamText"
-          placeholder="Je volais au-dessus d'une forêt magique la nuit, avec des papillons lumineux qui me guidaient à travers des arbres ancestraux..."
+          placeholder="Je volais au-dessus d’une forêt magique la nuit, avec des papillons lumineux qui me guidaient à travers des arbres ancestraux..."
           rows={6}
           {...register('dreamText')}
           aria-invalid={errors.dreamText ? 'true' : 'false'}

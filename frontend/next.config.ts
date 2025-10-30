@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: false,
   },
   outputFileTracingRoot: require('path').join(__dirname, '..'),
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
+  },
   async rewrites() {
     return [
       {
