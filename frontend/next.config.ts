@@ -5,9 +5,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
   outputFileTracingRoot: require('path').join(__dirname, '..'),
   images: {
     remotePatterns: [
