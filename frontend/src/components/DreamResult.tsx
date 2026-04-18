@@ -12,6 +12,12 @@ interface DreamResultProps {
   job: JobResponse
 }
 
+function blueprintField(bp: Record<string, unknown> | undefined, key: string): string {
+  if (!bp) return '—'
+  const v = bp[key]
+  return typeof v === 'string' || typeof v === 'number' ? String(v) : '—'
+}
+
 export function DreamResult({ job }: DreamResultProps) {
   const [isFullscreen, setIsFullscreen] = useState(false)
 
@@ -108,10 +114,10 @@ export function DreamResult({ job }: DreamResultProps) {
                 >
                   Quitter le plein écran
                 </button>
-                <WebGLViewer url={result.webglUrl} />
+                <WebGLViewer webglUrl={result.webglUrl} jobId={job.jobId} />
               </div>
             ) : (
-              <WebGLViewer url={result.webglUrl} />
+              <WebGLViewer webglUrl={result.webglUrl} jobId={job.jobId} />
             )}
           </div>
           <div className="p-6 space-y-4 bg-gradient-to-t from-black/40 to-transparent">
@@ -120,19 +126,19 @@ export function DreamResult({ job }: DreamResultProps) {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
                   <p className="text-xs text-white/60 uppercase">Monde</p>
-                  <p className="text-sm font-semibold text-white">{result.blueprint.world}</p>
+                  <p className="text-sm font-semibold text-white">{blueprintField(result.blueprint, 'world')}</p>
                 </div>
                 <div className="p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
                   <p className="text-xs text-white/60 uppercase">Moment</p>
-                  <p className="text-sm font-semibold text-white">{result.blueprint.time}</p>
+                  <p className="text-sm font-semibold text-white">{blueprintField(result.blueprint, 'time')}</p>
                 </div>
                 <div className="p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
                   <p className="text-xs text-white/60 uppercase">Météo</p>
-                  <p className="text-sm font-semibold text-white">{result.blueprint.weather}</p>
+                  <p className="text-sm font-semibold text-white">{blueprintField(result.blueprint, 'weather')}</p>
                 </div>
                 <div className="p-3 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10">
                   <p className="text-xs text-white/60 uppercase">Ambiance</p>
-                  <p className="text-sm font-semibold text-white">{result.blueprint.mood}</p>
+                  <p className="text-sm font-semibold text-white">{blueprintField(result.blueprint, 'mood')}</p>
                 </div>
               </div>
             )}

@@ -8,9 +8,11 @@ import {
   Loader2,
   ArrowRight,
   ArrowLeft,
+  Sparkles,
   Image as ImageIcon,
   Video as VideoIcon,
   Gamepad2 as GamepadIcon,
+  Check,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { dreamFormSchema, type DreamFormValues } from '@/lib/validations'
@@ -19,25 +21,63 @@ import { useDreamQuestStore } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Select } from '@/components/ui/select'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { RadioCard } from '@/components/ui/radio-card'
+import { Separator } from '@/components/ui/separator'
+import { cn } from '@/lib/utils'
 
-const stylePreviewImages = {
-  lowpoly: '🔷',
-  realistic: '🌄',
-  toon: '🎨',
-  surreal: '🌀',
-}
+type OutputType = DreamFormValues['outputType']
+type StyleType = DreamFormValues['style']
+type MoodType = DreamFormValues['mood']
+type LengthType = DreamFormValues['length']
 
-const moodPreviewColors = {
-  calm: 'from-blue-500/20 to-purple-500/20',
-  tense: 'from-red-500/20 to-orange-500/20',
-  mystic: 'from-purple-500/20 to-pink-500/20',
-  nostalgic: 'from-amber-500/20 to-yellow-500/20',
+const OUTPUTS: Array<{
+  id: OutputType
+  label: string
+  tagline: string
+  icon: typeof ImageIcon
+  accent: string
+}> = [
+  { id: 'image', label: 'Image', tagline: 'Still HD 1024px', icon: ImageIcon, accent: 'from-fuchsia-400 via-pink-400 to-rose-400' },
+  { id: 'video', label: 'Vidéo', tagline: 'Storyboard 6 plans', icon: VideoIcon, accent: 'from-sky-400 via-cyan-400 to-blue-400' },
+  { id: 'game', label: 'Monde 3D', tagline: 'Unity WebGL jouable', icon: GamepadIcon, accent: 'from-amber-300 via-orange-400 to-rose-400' },
+]
+
+const STYLES: Array<{ id: StyleType; label: string; hint: string; palette: string[] }> = [
+  { id: 'lowpoly',   label: 'Low poly',  hint: 'Géométrie facettée', palette: ['#1E293B', '#38BDF8', '#F472B6'] },
+  { id: 'realistic', label: 'Réaliste',  hint: 'Photoréalisme ciné',  palette: ['#0B1220', '#2563EB', '#F97316'] },
+  { id: 'toon',      label: 'Cartoon',   hint: 'Cel-shading gouache', palette: ['#FFF7ED', '#F43F5E', '#8B5CF6'] },
+  { id: 'surreal',   label: 'Surréel',   hint: 'Dalí · Moebius',     palette: ['#0F0A1F', '#C026D3', '#06B6D4'] },
+]
+
+const MOODS: Array<{ id: MoodType; label: string; hint: string; gradient: string }> = [
+  { id: 'calm',       label: 'Apaisé',    hint: 'Drones ambient',    gradient: 'from-blue-500/40 to-emerald-500/30' },
+  { id: 'tense',      label: 'Tendu',     hint: 'Cordes dissonantes', gradient: 'from-rose-500/40 to-orange-500/30' },
+  { id: 'mystic',     label: 'Mystique',  hint: 'Chœurs cristallins', gradient: 'from-fuchsia-500/40 to-indigo-500/30' },
+  { id: 'nostalgic',  label: 'Nostalgique', hint: 'Piano lo-fi',     gradient: 'from-amber-500/40 to-pink-500/30' },
+]
+
+const LENGTHS: Array<{ id: LengthType; label: string; hint: string }> = [
+  { id: 'short', label: 'Court',  hint: '5 — 10 min' },
+  { id: 'long',  label: 'Étendu', hint: '15 — 30 min' },
+]
+
+const STEPS = [
+  { n: 1, title: 'Le rêve', hint: 'Racontez' },
+  { n: 2, title: 'L’esthétique', hint: 'Sculptez' },
+  { n: 3, title: 'Le lancement', hint: 'Rendez' },
+]
+
+const slideVariants = {
+  enter:  (d: number) => ({ x: d > 0 ?  60 : -60, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit:   (d: number) => ({ x: d > 0 ? -60 :  60, opacity: 0 }),
 }
 
 export function DreamFormWithSteps() {
   const [step, setStep] = useState(1)
+  const [direction, setDirection] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
@@ -51,20 +91,22 @@ export function DreamFormWithSteps() {
     formState: { errors },
     watch,
     trigger,
+    setValue,
   } = useForm<DreamFormValues>({
     resolver: zodResolver(dreamFormSchema),
     defaultValues: {
       outputType: 'image',
-      style: 'lowpoly',
+      style: 'surreal',
       mood: 'mystic',
       length: 'short',
     },
   })
 
   const dreamText = watch('dreamText')
-  const selectedOutputType = watch('outputType')
-  const selectedStyle = watch('style')
-  const selectedMood = watch('mood')
+  const outputType = watch('outputType')
+  const style = watch('style')
+  const mood = watch('mood')
+  const length = watch('length')
 
   const handleRecordClick = async () => {
     if (isRecording) {
@@ -76,40 +118,33 @@ export function DreamFormWithSteps() {
   }
 
   const nextStep = async () => {
-    let valid = false
+    setDirection(1)
     if (step === 1) {
-      valid = await trigger('dreamText')
-      if (valid || audioUrl) {
-        setStep(2)
-      }
+      const ok = await trigger('dreamText')
+      if (ok || audioUrl) setStep(2)
     } else if (step === 2) {
-      valid = await trigger(['outputType', 'style', 'mood', 'length'])
-      if (valid) {
-        setStep(3)
-      }
+      const ok = await trigger(['outputType', 'style', 'mood', 'length'])
+      if (ok) setStep(3)
     }
   }
 
   const prevStep = () => {
-    setStep((prev) => Math.max(1, prev - 1))
+    setDirection(-1)
+    setStep((s) => Math.max(1, s - 1))
   }
 
   const onSubmit = async (data: DreamFormValues) => {
     setError(null)
     setIsSubmitting(true)
-
     try {
       if (!data.dreamText && !audioUrl) {
-        throw new Error('Please provide either a dream description or audio recording')
+        throw new Error('Décrivez votre rêve ou enregistrez votre voix pour continuer.')
       }
-
       let finalDreamText = data.dreamText
-
       if (audioUrl && !finalDreamText) {
-        const transcription = await api.transcribeAudio({ audioUrl })
-        finalDreamText = transcription.text
+        const t = await api.transcribeAudio({ audioUrl })
+        finalDreamText = t.text
       }
-
       const response = await api.createJob({
         dreamText: finalDreamText,
         audioUrl: audioUrl || undefined,
@@ -118,108 +153,145 @@ export function DreamFormWithSteps() {
         mood: data.mood,
         length: data.length,
       })
-
       addJob({
         jobId: response.jobId,
         status: response.status as JobResponse['status'],
         progress: 0,
       })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create dream world')
+      setError(err instanceof Error ? err.message : 'Échec de la création du rêve.')
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 300 : -300,
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction: number) => ({
-      x: direction > 0 ? -300 : 300,
-      opacity: 0,
-    }),
-  }
+  const charCount = dreamText?.length ?? 0
+  const charProgress = Math.min(100, (charCount / 30) * 100)
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
       {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
+        <Alert variant="destructive" className="border-rose-500/30 bg-rose-950/40 backdrop-blur-sm">
+          <AlertDescription className="text-rose-100">{error}</AlertDescription>
         </Alert>
       )}
 
-      {/* Progress Indicator */}
-      <div className="flex items-center justify-center gap-2 mb-8">
-        {[1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              i === step ? 'w-12 bg-primary' : i < step ? 'w-8 bg-primary/50' : 'w-8 bg-border'
-            }`}
-          />
-        ))}
-      </div>
+      {/* Step indicator */}
+      <nav aria-label="Étapes" className="flex items-center justify-between gap-2">
+        {STEPS.map((s, i) => {
+          const done = step > s.n
+          const active = step === s.n
+          return (
+            <div key={s.n} className="flex flex-1 items-center gap-3">
+              <div
+                className={cn(
+                  'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold transition-all duration-500',
+                  done && 'border-white/40 bg-white text-black',
+                  active && 'border-white/40 bg-white/10 text-white shadow-[0_0_20px_rgba(192,132,252,0.5)]',
+                  !done && !active && 'border-white/10 bg-white/[0.03] text-white/40',
+                )}
+              >
+                {done ? <Check className="h-4 w-4" /> : s.n}
+              </div>
+              <div className="hidden flex-col sm:flex">
+                <span className={cn('text-xs uppercase tracking-[0.18em]', active ? 'text-white' : 'text-white/40')}>
+                  {s.hint}
+                </span>
+                <span className={cn('font-serif text-lg italic', active || done ? 'text-white' : 'text-white/30')}>
+                  {s.title}
+                </span>
+              </div>
+              {i < STEPS.length - 1 && (
+                <div className="h-px flex-1 bg-gradient-to-r from-white/20 to-transparent" />
+              )}
+            </div>
+          )
+        })}
+      </nav>
 
-      <AnimatePresence mode="wait" custom={step}>
-        {/* Step 1: Dream Input */}
+      <AnimatePresence mode="wait" custom={direction}>
+        {/* ── STEP 1 ─────────────────────────────────────── */}
         {step === 1 && (
           <motion.div
             key="step1"
-            custom={1}
+            custom={direction}
             variants={slideVariants}
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="space-y-8"
           >
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold mb-2">Share Your Dream</h2>
-              <p className="text-muted-foreground">Describe it in words or record your voice</p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="dreamText">Describe your dream</Label>
-              <Textarea
-                id="dreamText"
-                placeholder="I was flying over a magical forest at night, with glowing butterflies guiding my way..."
-                rows={8}
-                {...register('dreamText')}
-                aria-invalid={errors.dreamText ? 'true' : 'false'}
-              />
-              {errors.dreamText && (
-                <p className="text-sm text-destructive">{errors.dreamText.message}</p>
-              )}
-              <p className="text-sm text-muted-foreground">
-                {dreamText?.length || 0} / 2000 characters (min 30)
+            <header className="space-y-3">
+              <Badge variant="outline" className="border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.25em] text-white/70">
+                01 — Le rêve
+              </Badge>
+              <h2 className="font-serif text-4xl leading-tight text-white sm:text-5xl">
+                Racontez-nous votre <span className="italic text-gradient-static">rêve.</span>
+              </h2>
+              <p className="text-white/60">
+                Soyez spécifique : symboles, lieux, personnages, émotions.
+                L’IA interprète les détails comme un scénariste.
               </p>
+            </header>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="dreamText" className="text-sm text-white/70">Description</Label>
+                <span className={cn('font-mono text-xs', charCount < 30 ? 'text-white/40' : 'text-emerald-400')}>
+                  {charCount} / 2000
+                </span>
+              </div>
+
+              <div className="relative">
+                <Textarea
+                  id="dreamText"
+                  placeholder="Je volais au-dessus d'une forêt phosphorescente. Un oiseau de lumière m'a guidé vers une maison flottante où le temps s'était arrêté…"
+                  rows={8}
+                  {...register('dreamText')}
+                  aria-invalid={errors.dreamText ? 'true' : 'false'}
+                  className="min-h-[200px] resize-none rounded-2xl border-white/10 bg-white/[0.03] text-base leading-relaxed text-white placeholder:text-white/30 focus-visible:ring-white/30"
+                />
+                <div className="pointer-events-none absolute inset-x-4 bottom-3 h-0.5 overflow-hidden rounded-full bg-white/5">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-fuchsia-400 to-sky-400 transition-all duration-500"
+                    style={{ width: `${charProgress}%` }}
+                  />
+                </div>
+              </div>
+
+              {errors.dreamText && (
+                <p className="text-sm text-rose-400">{errors.dreamText.message}</p>
+              )}
+              <p className="text-xs text-white/40">Minimum 30 caractères pour une bonne interprétation.</p>
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="flex-1 h-px bg-border" />
-              <span className="text-sm text-muted-foreground">OR</span>
-              <div className="flex-1 h-px bg-border" />
+              <Separator className="flex-1" />
+              <span className="text-[11px] uppercase tracking-[0.3em] text-white/40">ou</span>
+              <Separator className="flex-1" />
             </div>
 
-            <div className="space-y-2">
-              <Label>Record audio</Label>
+            <div className="space-y-3">
+              <Label className="text-sm text-white/70">Enregistrement audio</Label>
               <Button
                 type="button"
-                variant={isRecording ? 'destructive' : 'outline'}
+                variant="ghost"
                 onClick={handleRecordClick}
-                className="w-full"
+                className={cn(
+                  'group relative h-14 w-full cursor-pointer rounded-2xl border text-base transition-all duration-300',
+                  isRecording
+                    ? 'border-rose-400/60 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20'
+                    : 'border-white/10 bg-white/[0.03] text-white hover:border-white/25 hover:bg-white/[0.06]',
+                )}
               >
-                <Mic className="mr-2 h-4 w-4" />
-                {isRecording ? 'Stop Recording' : 'Start Recording'}
+                <Mic className={cn('mr-2 h-4 w-4', isRecording && 'animate-pulse')} />
+                {isRecording ? 'Arrêter l’enregistrement' : 'Démarrer l’enregistrement'}
               </Button>
               {audioUrl && (
-                <p className="text-sm text-green-600">✓ Audio recorded successfully</p>
+                <p className="flex items-center gap-2 text-sm text-emerald-400">
+                  <Check className="h-4 w-4" /> Audio enregistré avec succès
+                </p>
               )}
             </div>
 
@@ -227,188 +299,228 @@ export function DreamFormWithSteps() {
               type="button"
               onClick={nextStep}
               size="lg"
-              className="w-full"
-              disabled={!dreamText && !audioUrl}
+              disabled={(!dreamText || dreamText.length < 30) && !audioUrl}
+              className="group h-14 w-full cursor-pointer rounded-2xl bg-white text-base font-semibold text-black transition-all duration-300 hover:bg-white/90 disabled:opacity-40"
             >
-              Continue
-              <ArrowRight className="ml-2 h-4 w-4" />
+              Continuer vers l’esthétique
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </motion.div>
         )}
 
-        {/* Step 2: Style Selection with Preview */}
+        {/* ── STEP 2 ─────────────────────────────────────── */}
         {step === 2 && (
           <motion.div
             key="step2"
-            custom={2}
+            custom={direction}
             variants={slideVariants}
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="space-y-10"
           >
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold mb-2">Choose Your Style</h2>
-              <p className="text-muted-foreground">Customize the look and feel of your world</p>
-            </div>
+            <header className="space-y-3">
+              <Badge variant="outline" className="border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.25em] text-white/70">
+                02 — L’esthétique
+              </Badge>
+              <h2 className="font-serif text-4xl leading-tight text-white sm:text-5xl">
+                Sculptez l’<span className="italic text-gradient-static">atmosphère.</span>
+              </h2>
+              <p className="text-white/60">
+                Chaque choix pilote l’éclairage, la palette et le tempo du rendu final.
+              </p>
+            </header>
 
-            <div className="space-y-2">
-              <Label htmlFor="outputType">Output Type</Label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <label
-                  className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    selectedOutputType === 'image'
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  <input type="radio" value="image" {...register('outputType')} className="sr-only" />
-                  <ImageIcon className="w-8 h-8" />
-                  <span className="text-sm font-medium">Image</span>
-                </label>
-                <label
-                  className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    selectedOutputType === 'video'
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  <input type="radio" value="video" {...register('outputType')} className="sr-only" />
-                  <VideoIcon className="w-8 h-8" />
-                  <span className="text-sm font-medium">Video</span>
-                </label>
-                <label
-                  className={`relative flex flex-col items-center gap-2 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    selectedOutputType === 'game'
-                      ? 'border-primary bg-primary/5'
-                      : 'border-border hover:border-primary/50'
-                  }`}
-                >
-                  <input type="radio" value="game" {...register('outputType')} className="sr-only" />
-                  <GamepadIcon className="w-8 h-8" />
-                  <span className="text-sm font-medium">3D World</span>
-                </label>
+            {/* Output type */}
+            <fieldset className="space-y-3">
+              <legend className="text-xs uppercase tracking-[0.25em] text-white/50">Format de sortie</legend>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {OUTPUTS.map((o) => {
+                  const Icon = o.icon
+                  const selected = outputType === o.id
+                  return (
+                    <RadioCard key={o.id} selected={selected} accent={o.accent} onClick={() => setValue('outputType', o.id)}>
+                      <input type="radio" value={o.id} {...register('outputType')} className="sr-only" />
+                      <Icon className={cn('h-6 w-6 transition-colors', selected ? 'text-white' : 'text-white/60')} />
+                      <div className="mt-2">
+                        <div className="font-serif text-2xl text-white">{o.label}</div>
+                        <div className="text-[11px] uppercase tracking-[0.2em] text-white/50">{o.tagline}</div>
+                      </div>
+                    </RadioCard>
+                  )
+                })}
               </div>
-            </div>
+            </fieldset>
 
-            {/* Interactive Style Preview */}
-            <div
-              className={`relative h-40 rounded-lg bg-gradient-to-br ${moodPreviewColors[selectedMood]} border border-border transition-all duration-500 flex items-center justify-center overflow-hidden`}
-            >
-              <motion.div
-                key={selectedStyle}
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-                className="text-6xl"
+            {/* Visual Style */}
+            <fieldset className="space-y-3">
+              <legend className="text-xs uppercase tracking-[0.25em] text-white/50">Style visuel</legend>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                {STYLES.map((s) => {
+                  const selected = style === s.id
+                  return (
+                    <RadioCard key={s.id} selected={selected} onClick={() => setValue('style', s.id)}>
+                      <input type="radio" value={s.id} {...register('style')} className="sr-only" />
+                      <div className="font-serif text-xl text-white">{s.label}</div>
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-white/50">{s.hint}</div>
+                      <div className="mt-3 flex gap-1">
+                        {s.palette.map((c) => (
+                          <span
+                            key={c}
+                            className="h-3 w-5 rounded-full ring-1 ring-white/10"
+                            style={{ backgroundColor: c }}
+                          />
+                        ))}
+                      </div>
+                    </RadioCard>
+                  )
+                })}
+              </div>
+            </fieldset>
+
+            {/* Mood */}
+            <fieldset className="space-y-3">
+              <legend className="text-xs uppercase tracking-[0.25em] text-white/50">Humeur</legend>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                {MOODS.map((m) => {
+                  const selected = mood === m.id
+                  return (
+                    <RadioCard key={m.id} selected={selected} onClick={() => setValue('mood', m.id)}>
+                      <input type="radio" value={m.id} {...register('mood')} className="sr-only" />
+                      <div className={cn('absolute inset-0 bg-gradient-to-br transition-opacity duration-500', m.gradient, selected ? 'opacity-60' : 'opacity-0 group-hover:opacity-30')} />
+                      <div className="relative z-10">
+                        <div className="font-serif text-xl text-white">{m.label}</div>
+                        <div className="text-[11px] uppercase tracking-[0.18em] text-white/60">{m.hint}</div>
+                      </div>
+                    </RadioCard>
+                  )
+                })}
+              </div>
+            </fieldset>
+
+            {/* Length */}
+            <fieldset className="space-y-3">
+              <legend className="text-xs uppercase tracking-[0.25em] text-white/50">Durée</legend>
+              <div className="grid grid-cols-2 gap-3">
+                {LENGTHS.map((l) => {
+                  const selected = length === l.id
+                  return (
+                    <RadioCard key={l.id} selected={selected} onClick={() => setValue('length', l.id)}>
+                      <input type="radio" value={l.id} {...register('length')} className="sr-only" />
+                      <div className="font-serif text-xl text-white">{l.label}</div>
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-white/50">{l.hint}</div>
+                    </RadioCard>
+                  )
+                })}
+              </div>
+            </fieldset>
+
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                onClick={prevStep}
+                size="lg"
+                variant="ghost"
+                className="h-14 flex-1 cursor-pointer rounded-2xl border border-white/10 bg-white/[0.03] text-white hover:bg-white/10"
               >
-                {stylePreviewImages[selectedStyle]}
-              </motion.div>
-              <div className="absolute bottom-4 left-4 right-4">
-                <div className="bg-background/80 backdrop-blur-sm px-3 py-2 rounded-lg text-sm">
-                  <span className="font-semibold capitalize">{selectedStyle}</span> ·{' '}
-                  <span className="capitalize">{selectedMood}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="style">Visual Style</Label>
-                <Select id="style" {...register('style')}>
-                  <option value="lowpoly">Low Poly</option>
-                  <option value="realistic">Realistic</option>
-                  <option value="toon">Cartoon</option>
-                  <option value="surreal">Surreal</option>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="mood">Mood</Label>
-                <Select id="mood" {...register('mood')}>
-                  <option value="calm">Calm</option>
-                  <option value="tense">Tense</option>
-                  <option value="mystic">Mystic</option>
-                  <option value="nostalgic">Nostalgic</option>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="length">Duration</Label>
-                <Select id="length" {...register('length')}>
-                  <option value="short">Short (5-10 min)</option>
-                  <option value="long">Long (15-30 min)</option>
-                </Select>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <Button type="button" onClick={prevStep} variant="outline" size="lg" className="flex-1">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
+                Retour
               </Button>
-              <Button type="button" onClick={nextStep} size="lg" className="flex-1">
-                Continue
-                <ArrowRight className="ml-2 h-4 w-4" />
+              <Button
+                type="button"
+                onClick={nextStep}
+                size="lg"
+                className="group h-14 flex-[2] cursor-pointer rounded-2xl bg-white text-base font-semibold text-black hover:bg-white/90"
+              >
+                Revoir avant rendu
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </div>
           </motion.div>
         )}
 
-        {/* Step 3: Review & Submit */}
+        {/* ── STEP 3 ─────────────────────────────────────── */}
         {step === 3 && (
           <motion.div
             key="step3"
-            custom={3}
+            custom={direction}
             variants={slideVariants}
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.3 }}
-            className="space-y-6"
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            className="space-y-8"
           >
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold mb-2">Ready to Dream?</h2>
-              <p className="text-muted-foreground">Review your settings and launch</p>
+            <header className="space-y-3">
+              <Badge variant="outline" className="border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.25em] text-white/70">
+                03 — Le lancement
+              </Badge>
+              <h2 className="font-serif text-4xl leading-tight text-white sm:text-5xl">
+                Prêt à <span className="italic text-gradient-static">rêver ?</span>
+              </h2>
+            </header>
+
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-8">
+              <div className="aurora opacity-40" aria-hidden />
+              <div className="relative space-y-6">
+                <div>
+                  <div className="mb-2 text-xs uppercase tracking-[0.25em] text-white/50">Votre rêve</div>
+                  <p className="font-serif text-xl leading-relaxed text-white/90 sm:text-2xl">
+                    « {dreamText?.slice(0, 220) || 'Audio enregistré'}{dreamText && dreamText.length > 220 ? '…' : ''} »
+                  </p>
+                </div>
+
+                <Separator />
+
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <SummaryChip label="Format" value={outputType} />
+                  <SummaryChip label="Style" value={style} />
+                  <SummaryChip label="Humeur" value={mood} />
+                  <SummaryChip label="Durée" value={length} />
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-4 p-6 rounded-lg border border-border bg-card/50">
-              <div>
-                <h3 className="font-semibold mb-2">Your Dream:</h3>
-                <p className="text-sm text-muted-foreground line-clamp-3">
-                  {dreamText || 'Audio recording provided'}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm capitalize">
-                  {selectedOutputType}
-                </span>
-                <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
-                  {selectedStyle}
-                </span>
-                <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
-                  {selectedMood}
-                </span>
-                <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
-                  {watch('length')}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <Button type="button" onClick={prevStep} variant="outline" size="lg" className="flex-1">
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                onClick={prevStep}
+                size="lg"
+                variant="ghost"
+                className="h-14 flex-1 cursor-pointer rounded-2xl border border-white/10 bg-white/[0.03] text-white hover:bg-white/10"
+              >
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
+                Modifier
               </Button>
-              <Button type="submit" size="lg" className="flex-1" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Generate My Dream World
+              <Button
+                type="submit"
+                size="lg"
+                disabled={isSubmitting}
+                className="group relative h-14 flex-[2] cursor-pointer overflow-hidden rounded-2xl bg-white text-base font-semibold text-black transition-all duration-300 hover:shadow-[0_20px_60px_-15px_rgba(192,132,252,0.8)]"
+              >
+                <span className="relative z-10 inline-flex items-center">
+                  {isSubmitting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
+                  )}
+                  {isSubmitting ? 'Génération en cours…' : 'Générer le rêve'}
+                </span>
               </Button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </form>
+  )
+}
+
+function SummaryChip({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="space-y-1 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+      <div className="text-[10px] uppercase tracking-[0.2em] text-white/40">{label}</div>
+      <div className="font-serif text-lg capitalize text-white">{value}</div>
+    </div>
   )
 }

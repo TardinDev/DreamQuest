@@ -1,460 +1,292 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Header } from '@/components/Header'
 import {
+  ArrowUpRight,
   Sparkles,
-  Image as ImageIcon,
-  Video,
-  Gamepad2,
   Brain,
   Wand2,
-  Share2,
-  Zap,
-  Globe,
   Palette,
+  ImageIcon,
+  Video,
+  Gamepad2,
+  Zap,
+  MoveRight,
 } from 'lucide-react'
+
+const features = [
+  {
+    icon: Brain,
+    step: '01',
+    title: 'Racontez le rêve',
+    copy:
+      'Décrivez-le en français, en images, ou enregistrez votre voix. L\'IA décode symboles, émotions et archétypes.',
+  },
+  {
+    icon: Palette,
+    step: '02',
+    title: 'Sculptez l’atmosphère',
+    copy:
+      'Choisissez un style visuel, une humeur et un format. Chaque preset pilote éclairage, couleurs et tempo.',
+  },
+  {
+    icon: Wand2,
+    step: '03',
+    title: 'Rendez-le vivant',
+    copy:
+      'Image 1024px, vidéo cinématique 6 plans ou monde 3D Unity WebGL. Prêt en moins d’une minute.',
+  },
+]
+
+const outputs = [
+  {
+    icon: ImageIcon,
+    title: 'Images',
+    tagline: 'High-resolution stills',
+    copy: 'Des visuels en 1024px taillés pour l’affiche, l’inspiration ou le moodboard.',
+    gradient: 'from-fuchsia-500/40 via-purple-500/30 to-transparent',
+    accent: 'text-fuchsia-200',
+  },
+  {
+    icon: Video,
+    title: 'Vidéos',
+    tagline: 'Cinematic storyboards',
+    copy: '6 plans storyboardés avec caméra, lumière, transitions et partition musicale.',
+    gradient: 'from-sky-500/40 via-cyan-500/30 to-transparent',
+    accent: 'text-sky-200',
+  },
+  {
+    icon: Gamepad2,
+    title: 'Mondes 3D',
+    tagline: 'Playable Unity WebGL',
+    copy: 'Blueprint complet : biome, météo, PNJ, objectifs, sound design, lumière cinématique.',
+    gradient: 'from-amber-400/40 via-rose-400/30 to-transparent',
+    accent: 'text-amber-100',
+  },
+]
+
+const stats = [
+  { k: '10K+', v: 'Rêves générés' },
+  { k: '5K+', v: 'Rêveurs actifs' },
+  { k: '< 60s', v: 'Temps de rendu' },
+  { k: '98%', v: 'Fidélité aux symboles' },
+]
+
+const marqueeWords = [
+  'Symboles', 'Archétypes', 'Émotions', 'Lumière', 'Palette', 'Narration',
+  'Biome', 'Caméra', 'Tempo', 'Ambiance', 'Matière', 'Profondeur',
+]
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black">
+    <main className="relative min-h-screen overflow-hidden bg-[#05030b] text-white">
       <Header />
 
-      {/* Hero Section */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center px-6 py-32 sm:py-40 overflow-hidden bg-black">
-        {/* Animated background effects */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-blue-600/10 to-transparent rounded-full blur-3xl animate-pulse" />
-          <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-cyan-600/10 to-transparent rounded-full blur-3xl animate-pulse delay-1000" />
-        </div>
+      {/* ── HERO ───────────────────────────────────────────────── */}
+      <section className="relative flex min-h-[100svh] flex-col items-center justify-center px-6 pt-32 pb-20 sm:pt-40">
+        <div className="aurora" aria-hidden />
+        <div className="absolute inset-0 bg-grid bg-grid-fade opacity-60" aria-hidden />
+        <div className="bg-noise pointer-events-none absolute inset-0" aria-hidden />
 
-        <div className="relative z-10 max-w-5xl text-center space-y-8">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 text-white/90">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">Powered by AI</span>
-          </div>
+        <div className="relative z-10 mx-auto max-w-6xl text-center">
+          <Badge
+            variant="outline"
+            className="mb-8 border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-white/80 backdrop-blur-sm"
+          >
+            <Sparkles className="mr-2 h-3 w-3" />
+            v1.0 · Claude Sonnet 4.5
+          </Badge>
 
-          {/* Main heading */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white leading-tight">
-            Transformez vos rêves
-            <br />
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent">
-              en réalité visuelle
+          <h1 className="reveal-up font-serif text-[14vw] font-normal leading-[0.9] tracking-tight text-white sm:text-[10vw] md:text-[8rem] lg:text-[10rem]">
+            <span className="block">Rendez vos rêves</span>
+            <span className="block italic">
+              <span className="text-gradient">visibles.</span>
             </span>
           </h1>
 
-          {/* Description */}
-          <p className="text-lg sm:text-xl md:text-2xl text-white/70 max-w-3xl mx-auto leading-relaxed">
-            Décrivez votre rêve et notre IA le transforme en image captivante,
-            vidéo immersive ou expérience de jeu interactive en quelques secondes.
+          <p className="reveal-up mx-auto mt-10 max-w-2xl text-base leading-relaxed text-white/60 sm:text-lg md:text-xl" style={{ animationDelay: '120ms' }}>
+            Une IA multi-étapes décode vos rêves — symboles, émotions, archétypes —
+            et les sculpte en <em className="font-serif not-italic text-white">images</em>,{' '}
+            <em className="font-serif not-italic text-white">vidéos</em> et{' '}
+            <em className="font-serif not-italic text-white">mondes 3D interactifs</em>.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
+          <div className="reveal-up mt-12 flex flex-col items-center justify-center gap-3 sm:flex-row" style={{ animationDelay: '240ms' }}>
             <Link href="/dreamquest">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 hover:from-blue-600 hover:via-cyan-600 hover:to-teal-600 text-white text-base sm:text-lg px-8 sm:px-10 py-6 sm:py-7 h-auto shadow-2xl shadow-blue-500/30 border-0 transition-all duration-300 hover:scale-105 hover:shadow-blue-500/50"
+                className="group h-14 rounded-full bg-white px-7 text-base font-semibold text-black shadow-[0_20px_60px_-15px_rgba(255,255,255,0.4)] transition-all duration-300 hover:bg-white/90 hover:shadow-[0_30px_80px_-10px_rgba(192,132,252,0.6)]"
               >
-                <Wand2 className="mr-2 h-5 w-5" />
-                Commencer Gratuitement
+                <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
+                Commencer un rêve
+                <ArrowUpRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </Button>
             </Link>
             <Link href="/dreamquest/gallery">
               <Button
                 size="lg"
-                variant="outline"
-                className="border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 text-base sm:text-lg px-8 sm:px-10 py-6 sm:py-7 h-auto backdrop-blur-sm transition-all duration-300 hover:scale-105"
+                variant="ghost"
+                className="h-14 rounded-full border border-white/15 bg-white/5 px-7 text-base font-medium text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:border-white/25"
               >
-                <Share2 className="mr-2 h-5 w-5" />
-                Explorer la Galerie
+                Explorer la galerie
+                <MoveRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
+
+          <div className="reveal-up mt-24 flex items-center justify-center gap-3 text-xs uppercase tracking-[0.3em] text-white/40" style={{ animationDelay: '360ms' }}>
+            <span className="h-px w-10 bg-white/20" />
+            <span>Scrollez pour décoder</span>
+            <span className="h-px w-10 bg-white/20" />
+          </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="relative py-20 sm:py-28 px-6 bg-gradient-to-b from-black via-blue-950/5 to-black">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16 sm:mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full border border-blue-500/20 text-blue-300 mb-6">
-              <Zap className="w-4 h-4" />
-              <span className="text-sm font-medium">Simple et Rapide</span>
+      {/* ── MARQUEE ────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden border-y border-white/10 bg-white/[0.02] py-8">
+        <div className="flex gap-12 whitespace-nowrap marquee">
+          {[...marqueeWords, ...marqueeWords].map((w, i) => (
+            <span key={i} className="font-serif text-3xl italic text-white/50 sm:text-4xl">
+              {w} <span className="mx-6 text-white/20">✦</span>
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* ── HOW IT WORKS ───────────────────────────────────────── */}
+      <section className="relative px-6 py-28 sm:py-36">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-20 grid items-end gap-8 md:grid-cols-12">
+            <div className="md:col-span-6">
+              <Badge variant="outline" className="mb-6 border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-white/70">
+                <Zap className="mr-2 h-3 w-3" /> Pipeline
+              </Badge>
+              <h2 className="font-serif text-5xl leading-[1.05] text-white sm:text-6xl md:text-7xl">
+                Trois étapes. <span className="italic text-gradient-static">Zéro friction.</span>
+              </h2>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-              Comment ça fonctionne ?
-            </h2>
-            <p className="text-lg text-white/60 max-w-2xl mx-auto">
-              Trois étapes simples pour donner vie à vos rêves
+            <p className="text-lg leading-relaxed text-white/60 md:col-span-5 md:col-start-8">
+              Une pipeline IA à deux temps : interprétation structurée de votre rêve,
+              puis synthèse cohérente vers le format choisi.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
-            {/* Step 1 */}
-            <div className="group relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/10 hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20">
-              <div className="absolute top-6 right-6 text-7xl font-bold text-white/5">01</div>
-              <div className="relative z-10">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Brain className="w-7 h-7 text-white" />
+          <div className="grid gap-6 lg:grid-cols-3">
+            {features.map(({ icon: Icon, step, title, copy }) => (
+              <article
+                key={step}
+                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.07] to-white/[0.02] p-8 transition-all duration-500 hover-lift hover:border-white/25"
+              >
+                <div className="absolute -right-6 -top-6 font-serif text-[8rem] leading-none text-white/[0.04] transition-all duration-700 group-hover:text-white/10 group-hover:-translate-y-1">
+                  {step}
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">Décrivez votre rêve</h3>
-                <p className="text-white/70 text-base leading-relaxed">
-                  Racontez votre rêve en détail. Plus vous êtes descriptif,
-                  plus le résultat sera précis et captivant.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 2 */}
-            <div className="group relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/10 hover:border-cyan-500/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-cyan-500/20">
-              <div className="absolute top-6 right-6 text-7xl font-bold text-white/5">02</div>
-              <div className="relative z-10">
-                <div className="w-14 h-14 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Palette className="w-7 h-7 text-white" />
+                <div className="relative z-10 flex flex-col gap-6">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 transition-all duration-500 group-hover:border-white/30 group-hover:bg-white/10">
+                    <Icon className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="font-serif text-3xl text-white">{title}</h3>
+                  <p className="text-[15px] leading-relaxed text-white/60">{copy}</p>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">Personnalisez le style</h3>
-                <p className="text-white/70 text-base leading-relaxed">
-                  Sélectionnez le format de sortie : image, vidéo ou jeu 3D.
-                  Choisissez le style et l’ambiance désirés.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div className="group relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/10 hover:border-teal-500/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-teal-500/20">
-              <div className="absolute top-6 right-6 text-7xl font-bold text-white/5">03</div>
-              <div className="relative z-10">
-                <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Wand2 className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-3">Découvrez le résultat</h3>
-                <p className="text-white/70 text-base leading-relaxed">
-                  L’IA génère votre rêve en quelques secondes.
-                  Contemplez, partagez ou explorez votre création.
-                </p>
-              </div>
-            </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Output Types Section */}
-      <section className="relative py-20 sm:py-28 px-6 bg-black">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16 sm:mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/10 backdrop-blur-sm rounded-full border border-purple-500/20 text-purple-300 mb-6">
-              <Globe className="w-4 h-4" />
-              <span className="text-sm font-medium">Formats Multiples</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-              Trois façons de visualiser vos rêves
+      {/* ── OUTPUT FORMATS ─────────────────────────────────────── */}
+      <section className="relative px-6 py-28 sm:py-36">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-16 max-w-3xl">
+            <Badge variant="outline" className="mb-6 border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-white/70">
+              Formats
+            </Badge>
+            <h2 className="font-serif text-5xl leading-[1.05] text-white sm:text-6xl md:text-7xl">
+              Un rêve. <span className="italic">Trois rendus.</span>
             </h2>
-            <p className="text-lg text-white/60 max-w-2xl mx-auto">
-              Choisissez le format qui correspond le mieux à votre vision
-            </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6 sm:gap-8">
-            {/* Image */}
-            <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500 p-1 hover:scale-105 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/30">
-              <div className="h-full bg-black/40 backdrop-blur-sm rounded-3xl p-8">
-                <div className="relative z-10 space-y-4">
-                  <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <ImageIcon className="w-7 h-7 text-white" />
+          <div className="grid gap-5 md:grid-cols-3">
+            {outputs.map(({ icon: Icon, title, tagline, copy, gradient, accent }) => (
+              <article
+                key={title}
+                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-[#0a0714] p-0 transition-all duration-500 hover:-translate-y-1 hover:border-white/25"
+              >
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-40 transition-opacity duration-700 group-hover:opacity-80`}
+                  aria-hidden
+                />
+                <div className="bg-noise pointer-events-none absolute inset-0" aria-hidden />
+                <div className="relative z-10 flex h-full min-h-[420px] flex-col justify-between p-8">
+                  <div>
+                    <Icon className={`h-10 w-10 ${accent}`} />
+                    <p className="mt-6 text-xs uppercase tracking-[0.25em] text-white/50">{tagline}</p>
+                    <h3 className="mt-2 font-serif text-5xl text-white">{title}</h3>
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Images HD</h3>
-                  <p className="text-white/90 text-base leading-relaxed">
-                    Des illustrations détaillées et artistiques qui capturent
-                    l’essence visuelle de votre rêve en haute résolution.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Video */}
-            <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-cyan-600 via-cyan-500 to-teal-500 p-1 hover:scale-105 transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/30">
-              <div className="h-full bg-black/40 backdrop-blur-sm rounded-3xl p-8">
-                <div className="relative z-10 space-y-4">
-                  <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Video className="w-7 h-7 text-white" />
+                  <div className="flex items-end justify-between gap-6">
+                    <p className="max-w-[22ch] text-sm leading-relaxed text-white/70">{copy}</p>
+                    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 transition-all duration-500 group-hover:bg-white group-hover:text-black">
+                      <ArrowUpRight className="h-4 w-4" />
+                    </span>
                   </div>
-                  <h3 className="text-2xl font-bold text-white">Vidéos 4K</h3>
-                  <p className="text-white/90 text-base leading-relaxed">
-                    Des séquences animées cinématiques qui donnent vie à
-                    votre rêve avec fluidité et immersion totale.
-                  </p>
                 </div>
-              </div>
-            </div>
-
-            {/* Game */}
-            <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-600 via-teal-500 to-emerald-500 p-1 hover:scale-105 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-500/30">
-              <div className="h-full bg-black/40 backdrop-blur-sm rounded-3xl p-8">
-                <div className="relative z-10 space-y-4">
-                  <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Gamepad2 className="w-7 h-7 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white">Mondes 3D</h3>
-                  <p className="text-white/90 text-base leading-relaxed">
-                    Des univers interactifs jouables où vous pouvez
-                    explorer et vivre votre rêve en temps réel.
-                  </p>
-                </div>
-              </div>
-            </div>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Use Cases Section */}
-      <section className="relative py-24 px-6 bg-black border-t border-white/10">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-16">
-            Cas d’utilisation
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Use case 1 */}
-            <div className="p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-blue-500/50 transition-all">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Brain className="w-6 h-6 text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-3">Exploration Créative</h3>
-                  <p className="text-white/70 leading-relaxed">
-                    Artistes et créatifs peuvent visualiser leurs idées abstraites et transformer
-                    leurs rêves en références visuelles concrètes pour leurs projets.
-                  </p>
-                </div>
-              </div>
+      {/* ── STATS ──────────────────────────────────────────────── */}
+      <section className="relative border-y border-white/10 bg-white/[0.02] px-6 py-20">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-10 md:grid-cols-4">
+          {stats.map(({ k, v }) => (
+            <div key={v} className="space-y-2">
+              <div className="font-serif text-5xl leading-none text-white sm:text-6xl">{k}</div>
+              <div className="text-xs uppercase tracking-[0.2em] text-white/40">{v}</div>
             </div>
-
-            {/* Use case 2 */}
-            <div className="p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-cyan-500/50 transition-all">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-cyan-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Video className="w-6 h-6 text-cyan-400" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-3">Storytelling Visuel</h3>
-                  <p className="text-white/70 leading-relaxed">
-                    Écrivains et scénaristes peuvent créer des storyboards et des vidéos
-                    pour donner vie à leurs histoires et univers imaginaires.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Use case 3 */}
-            <div className="p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-green-500/50 transition-all">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Gamepad2 className="w-6 h-6 text-green-400" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-3">Développement de Jeux</h3>
-                  <p className="text-white/70 leading-relaxed">
-                    Game designers peuvent rapidement prototyper des environnements 3D
-                    et tester des concepts de gameplay basés sur leurs visions.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Use case 4 */}
-            <div className="p-8 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-teal-500/50 transition-all">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-teal-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-6 h-6 text-teal-400" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white mb-3">Thérapie & Bien-être</h3>
-                  <p className="text-white/70 leading-relaxed">
-                    Psychologues et thérapeutes peuvent utiliser l’outil pour aider leurs
-                    patients à explorer et comprendre leurs rêves de manière visuelle.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="relative py-24 px-6 bg-black">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 text-center">
-            <div className="space-y-2">
-              <div className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                10K+
-              </div>
-              <p className="text-white/60">Rêves Créés</p>
-            </div>
-            <div className="space-y-2">
-              <div className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                5K+
-              </div>
-              <p className="text-white/60">Utilisateurs Actifs</p>
-            </div>
-            <div className="space-y-2">
-              <div className="text-5xl font-bold bg-gradient-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">
-                98%
-              </div>
-              <p className="text-white/60">Satisfaction</p>
-            </div>
-            <div className="space-y-2">
-              <div className="text-5xl font-bold bg-gradient-to-r from-teal-400 to-green-400 bg-clip-text text-transparent">
-                24/7
-              </div>
-              <p className="text-white/60">Disponibilité</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="relative py-24 px-6 bg-black border-t border-white/10">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-16">
-            Ce qu’en disent nos utilisateurs
-          </h2>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Testimonial 1 */}
-            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-              <div className="flex items-center gap-2 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Sparkles key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                ))}
-              </div>
-              <p className="text-white/80 mb-4 leading-relaxed">
-                « DreamQuest a complètement changé ma façon de conceptualiser mes projets artistiques.
-                Je peux maintenant visualiser mes rêves en quelques secondes ! »
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full" />
-                <div>
-                  <p className="text-white font-semibold">Marie L.</p>
-                  <p className="text-white/50 text-sm">Artiste Digital</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Testimonial 2 */}
-            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-              <div className="flex items-center gap-2 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Sparkles key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                ))}
-              </div>
-              <p className="text-white/80 mb-4 leading-relaxed">
-                « Un outil incroyable pour le prototypage rapide de mondes de jeu.
-                L’IA comprend vraiment l’ambiance que je veux créer. »
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full" />
-                <div>
-                  <p className="text-white font-semibold">Thomas K.</p>
-                  <p className="text-white/50 text-sm">Game Designer</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Testimonial 3 */}
-            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-              <div className="flex items-center gap-2 mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Sparkles key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                ))}
-              </div>
-              <p className="text-white/80 mb-4 leading-relaxed">
-                « Mes patients adorent pouvoir visualiser leurs rêves.
-                C’est un excellent support pour nos séances de thérapie. »
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-teal-500 to-green-500 rounded-full" />
-                <div>
-                  <p className="text-white font-semibold">Dr. Sophie M.</p>
-                  <p className="text-white/50 text-sm">Psychologue</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="relative py-24 px-6 bg-black">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-center text-white mb-16">
-            Questions Fréquentes
-          </h2>
-
-          <div className="space-y-6">
-            {/* FAQ 1 */}
-            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-              <h3 className="text-xl font-bold text-white mb-3">
-                Comment fonctionne la génération ?
-              </h3>
-              <p className="text-white/70 leading-relaxed">
-                Notre IA analyse votre description de rêve, identifie les éléments clés (ambiance, objets, personnages)
-                et génère une représentation visuelle adaptée au format que vous avez choisi (image, vidéo ou jeu 3D).
-              </p>
-            </div>
-
-            {/* FAQ 2 */}
-            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-              <h3 className="text-xl font-bold text-white mb-3">
-                Combien de temps prend la génération ?
-              </h3>
-              <p className="text-white/70 leading-relaxed">
-                La génération prend généralement entre 30 secondes et 2 minutes selon le type de sortie choisi.
-                Les images sont les plus rapides, suivies des vidéos, puis des jeux 3D interactifs.
-              </p>
-            </div>
-
-            {/* FAQ 3 */}
-            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-              <h3 className="text-xl font-bold text-white mb-3">
-                Puis-je télécharger mes créations ?
-              </h3>
-              <p className="text-white/70 leading-relaxed">
-                Oui ! Toutes vos créations peuvent être téléchargées et partagées. Les images sont disponibles en haute résolution,
-                les vidéos en format MP4, et les jeux peuvent être exportés en WebGL.
-              </p>
-            </div>
-
-            {/* FAQ 4 */}
-            <div className="p-6 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
-              <h3 className="text-xl font-bold text-white mb-3">
-                L’outil est-il gratuit ?
-              </h3>
-              <p className="text-white/70 leading-relaxed">
-                Nous offrons une version gratuite avec des crédits limités par mois. Pour un usage illimité et des fonctionnalités
-                avancées, découvrez nos plans premium.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="relative py-24 px-6 bg-black border-t border-white/10">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <h2 className="text-4xl md:text-5xl font-bold text-white">
-            Prêt à donner vie à vos rêves ?
-          </h2>
-          <p className="text-xl text-white/80">
-            Rejoignez des milliers de rêveurs qui transforment leurs visions nocturnes en créations tangibles.
+      {/* ── PHILOSOPHY ─────────────────────────────────────────── */}
+      <section className="relative px-6 py-32">
+        <div className="mx-auto max-w-5xl text-center">
+          <p className="font-serif text-3xl leading-[1.3] text-white/90 sm:text-4xl md:text-5xl">
+            <span className="text-white/40">«</span> Un rêve n’est pas une image floue
+            à reproduire. <span className="italic text-gradient-static">C’est une logique symbolique</span>{' '}
+            qui demande à être entendue, puis rendue. <span className="text-white/40">»</span>
           </p>
-          <Link href="/dreamquest">
-            <Button size="lg" className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white text-lg px-10 py-7 h-auto shadow-2xl shadow-blue-500/50 border-0">
-              <Sparkles className="mr-2 h-5 w-5" />
-              Créer Maintenant
-            </Button>
-          </Link>
+          <div className="mt-10 flex items-center justify-center gap-3 text-xs uppercase tracking-[0.3em] text-white/50">
+            <span className="h-px w-8 bg-white/30" />
+            <span>Manifeste DreamQuest</span>
+            <span className="h-px w-8 bg-white/30" />
+          </div>
+        </div>
+      </section>
+
+      {/* ── FINAL CTA ──────────────────────────────────────────── */}
+      <section className="relative overflow-hidden px-6 py-32">
+        <div className="aurora" aria-hidden />
+        <div className="relative z-10 mx-auto max-w-4xl text-center">
+          <h2 className="font-serif text-6xl leading-[0.95] text-white sm:text-7xl md:text-8xl">
+            Prêt à <span className="italic text-gradient">rêver ?</span>
+          </h2>
+          <p className="mt-8 text-lg text-white/60 sm:text-xl">
+            Rejoignez des milliers de rêveurs qui matérialisent leurs nuits.
+          </p>
+          <div className="mt-12">
+            <Link href="/dreamquest">
+              <Button
+                size="lg"
+                className="group h-16 rounded-full bg-white px-10 text-base font-semibold text-black shadow-[0_25px_80px_-20px_rgba(192,132,252,0.8)] transition-all duration-300 hover:shadow-[0_35px_120px_-20px_rgba(192,132,252,1)]"
+              >
+                <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
+                Créer mon premier rêve
+                <ArrowUpRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
     </main>

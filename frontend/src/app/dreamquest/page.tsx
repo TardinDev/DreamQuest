@@ -7,56 +7,59 @@ import { DreamResult } from '@/components/DreamResult'
 import { DreamHistory } from '@/components/DreamHistory'
 import { ShareButton } from '@/components/ShareButton'
 import { Header } from '@/components/Header'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, Plus } from 'lucide-react'
 
 export default function DreamQuestPage() {
   const currentJob = useDreamQuestStore((state) => state.currentJob)
   const clearCurrentJob = useDreamQuestStore((state) => state.clearCurrentJob)
 
   return (
-    <div className="min-h-screen bg-black">
+    <main className="relative min-h-screen overflow-hidden bg-[#05030b] text-white">
       <Header />
 
-      <div className="container mx-auto px-4 sm:px-6 py-8 pt-24 sm:pt-28">
-        <div className="mb-8 sm:mb-12 text-center">
-          <div className="inline-flex items-center gap-3 mb-3">
-            <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-blue-400" />
-            <h1 className="text-3xl sm:text-4xl font-bold text-white">Créez votre Rêve</h1>
-          </div>
-          <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto">
-            Transformez vos rêves en créations visuelles époustouflantes
-          </p>
-        </div>
+      <div className="aurora opacity-50" aria-hidden />
+      <div className="bg-noise pointer-events-none fixed inset-0" aria-hidden />
+      <div className="absolute inset-x-0 top-0 h-[100svh] bg-grid bg-grid-fade opacity-40" aria-hidden />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main content */}
-          <div className="lg:col-span-2 space-y-6">
+      <div className="relative container mx-auto px-4 pb-24 pt-28 sm:px-6 sm:pt-36">
+        <header className="mx-auto mb-12 max-w-3xl text-center sm:mb-20">
+          <Badge variant="outline" className="mb-6 border-white/15 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-white/70">
+            <Sparkles className="mr-2 h-3 w-3" />
+            Atelier
+          </Badge>
+          <h1 className="font-serif text-5xl leading-[1.05] text-white sm:text-6xl md:text-7xl">
+            Créez votre <span className="italic text-gradient-static">rêve.</span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-xl text-base text-white/60 sm:text-lg">
+            Trois étapes, zéro friction. Votre narration devient image, vidéo
+            ou monde interactif en moins d’une minute.
+          </p>
+        </header>
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+          <section className="lg:col-span-8">
             {!currentJob && (
-              <Card className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border-white/10 shadow-2xl">
-                <CardHeader>
-                  <CardTitle className="text-xl sm:text-2xl text-white">Créez votre Monde de Rêve</CardTitle>
-                  <CardDescription className="text-white/70 text-sm sm:text-base">
-                    Décrivez votre rêve et choisissez comment le visualiser : image, vidéo ou jeu 3D interactif
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <DreamFormWithSteps />
-                </CardContent>
-              </Card>
+              <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-b from-white/[0.05] to-white/[0.02] p-6 sm:p-10">
+                <div className="shimmer-border absolute inset-0 rounded-[2rem]" aria-hidden />
+                <DreamFormWithSteps />
+              </div>
             )}
 
             {currentJob && currentJob.status !== 'ready' && (
               <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <h2 className="text-xl sm:text-2xl font-semibold text-white">Génération en cours...</h2>
+                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                  <h2 className="font-serif text-3xl italic text-white">
+                    Interprétation en cours<span className="animate-pulse">.</span>
+                  </h2>
                   <Button
-                    variant="outline"
+                    variant="ghost"
                     onClick={clearCurrentJob}
-                    className="border-white/30 text-white hover:bg-white/10 hover:border-white/50 transition-all"
+                    className="cursor-pointer rounded-full border border-white/15 bg-white/5 px-4 text-white hover:bg-white/10"
                   >
-                    Nouveau Rêve
+                    <Plus className="mr-2 h-4 w-4" />
+                    Nouveau rêve
                   </Button>
                 </div>
                 <JobProgress jobId={currentJob.jobId} />
@@ -65,32 +68,34 @@ export default function DreamQuestPage() {
 
             {currentJob?.status === 'ready' && currentJob.result && (
               <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <h2 className="text-xl sm:text-2xl font-semibold text-white bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                    Votre Rêve est Prêt !
+                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                  <h2 className="font-serif text-3xl italic text-white">
+                    Votre rêve <span className="text-gradient-static">rendu.</span>
                   </h2>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <ShareButton jobId={currentJob.jobId} />
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       onClick={clearCurrentJob}
-                      className="border-white/30 text-white hover:bg-white/10 hover:border-white/50 transition-all"
+                      className="cursor-pointer rounded-full border border-white/15 bg-white/5 px-4 text-white hover:bg-white/10"
                     >
-                      Créer un Autre
+                      <Plus className="mr-2 h-4 w-4" />
+                      Nouveau
                     </Button>
                   </div>
                 </div>
                 <DreamResult job={currentJob} />
               </div>
             )}
-          </div>
+          </section>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <DreamHistory />
-          </div>
+          <aside className="lg:col-span-4">
+            <div className="sticky top-28 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm">
+              <DreamHistory />
+            </div>
+          </aside>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

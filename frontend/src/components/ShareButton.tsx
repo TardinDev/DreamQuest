@@ -79,7 +79,7 @@ export function ShareButton({ jobId, title = 'Share Your Dream World' }: ShareBu
             )}
           </Button>
         </div>
-        {navigator.share && (
+        {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
           <Button onClick={shareNative} variant="secondary" className="w-full">
             <Share2 className="mr-2 h-4 w-4" />
             Share via...
