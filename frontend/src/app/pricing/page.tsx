@@ -13,7 +13,6 @@ const plans = [
     price: '0',
     description: 'Pour découvrir DreamQuest',
     icon: Sparkles,
-    color: 'from-gray-500 to-gray-600',
     features: [
       '1 image gratuite',
       '1 vidéo de 10 secondes',
@@ -31,7 +30,6 @@ const plans = [
     price: '9.99',
     description: 'Parfait pour les créateurs occasionnels',
     icon: Zap,
-    color: 'from-blue-500 to-cyan-500',
     credits: {
       images: 50,
       videos: 10,
@@ -52,7 +50,6 @@ const plans = [
     price: '29.99',
     description: 'Pour les professionnels créatifs',
     icon: Crown,
-    color: 'from-purple-500 to-pink-500',
     credits: {
       images: 200,
       videos: 50,
@@ -75,7 +72,6 @@ const plans = [
     price: 'Sur mesure',
     description: 'Pour les équipes et entreprises',
     icon: Crown,
-    color: 'from-orange-500 to-red-500',
     features: [
       'Crédits illimités',
       'Vidéos jusqu\'à 5 minutes',
@@ -95,7 +91,6 @@ const creditPacks = [
   {
     type: 'Images',
     icon: Image,
-    color: 'text-blue-400',
     packs: [
       { credits: 25, price: 4.99 },
       { credits: 100, price: 14.99, savings: '25%' },
@@ -105,7 +100,6 @@ const creditPacks = [
   {
     type: 'Vidéos',
     icon: Video,
-    color: 'text-cyan-400',
     packs: [
       { credits: 5, price: 4.99 },
       { credits: 25, price: 19.99, savings: '20%' },
@@ -115,7 +109,6 @@ const creditPacks = [
   {
     type: 'Jeux 3D',
     icon: Gamepad2,
-    color: 'text-teal-400',
     packs: [
       { credits: 3, price: 9.99 },
       { credits: 10, price: 29.99, savings: '10%' },
@@ -126,20 +119,20 @@ const creditPacks = [
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-[#0a0a0a]">
       <Header />
 
       <div className="container mx-auto px-4 sm:px-6 py-8 pt-24 sm:pt-32">
         {/* Hero Section */}
         <div className="text-center mb-16 sm:mb-20">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 backdrop-blur-sm rounded-full border border-blue-500/20 text-blue-300 mb-6">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">Tarification Simple et Transparente</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/[0.03] backdrop-blur-sm rounded-full border border-white/10 text-white/70 mb-6">
+            <Sparkles className="w-3 h-3" />
+            <span className="text-[11px] font-medium uppercase tracking-[0.2em]">Tarification simple et transparente</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-            Choisissez votre plan
+          <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl text-white mb-6 leading-[1.05]">
+            Choisissez votre <span className="italic text-white/70">plan</span>
           </h1>
-          <p className="text-lg sm:text-xl text-white/70 max-w-3xl mx-auto">
+          <p className="text-lg text-white/55 max-w-2xl mx-auto">
             Commencez gratuitement, puis choisissez le plan qui correspond à vos besoins.
             Tous les plans incluent l’accès à nos dernières fonctionnalités.
           </p>
@@ -147,75 +140,75 @@ export default function PricingPage() {
 
         {/* Monthly Plans */}
         <div className="mb-20">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-12">
-            Plans Mensuels
+          <h2 className="font-serif text-3xl text-white text-center mb-12">
+            Plans mensuels
           </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 max-w-7xl mx-auto">
             {plans.map((plan) => {
               const Icon = plan.icon
               return (
                 <Card
                   key={plan.name}
-                  className={`relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border-white/10 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${
-                    plan.popular ? 'border-2 border-blue-500/50 shadow-2xl shadow-blue-500/20' : ''
+                  className={`relative bg-white/[0.02] backdrop-blur-sm border-white/8 transition-all duration-300 hover:-translate-y-1 hover:border-white/20 ${
+                    plan.popular ? 'border-white/30' : ''
                   }`}
                 >
                   {plan.popular && (
-                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0">
+                    <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white text-black border-0 rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.2em]">
                       Le plus populaire
                     </Badge>
                   )}
                   <CardHeader>
-                    <div className={`w-12 h-12 bg-gradient-to-br ${plan.color} rounded-2xl flex items-center justify-center mb-4`}>
-                      <Icon className="w-6 h-6 text-white" />
+                    <div className="w-11 h-11 bg-white/[0.03] border border-white/10 rounded-xl flex items-center justify-center mb-4">
+                      <Icon className="w-5 h-5 text-white" />
                     </div>
-                    <CardTitle className="text-2xl text-white">{plan.name}</CardTitle>
-                    <CardDescription className="text-white/60">{plan.description}</CardDescription>
+                    <CardTitle className="font-serif text-2xl text-white">{plan.name}</CardTitle>
+                    <CardDescription className="text-white/55">{plan.description}</CardDescription>
                     <div className="mt-4">
-                      <span className="text-4xl font-bold text-white">${plan.price}</span>
-                      {plan.price !== 'Sur mesure' && <span className="text-white/50 ml-2">/mois</span>}
+                      <span className="font-serif text-5xl text-white">${plan.price}</span>
+                      {plan.price !== 'Sur mesure' && <span className="text-white/45 ml-2 text-sm">/mois</span>}
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {plan.credits && (
-                      <div className="space-y-2 pb-4 border-b border-white/10">
+                      <div className="space-y-2 pb-4 border-b border-white/8">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-white/70">Images</span>
-                          <span className="font-semibold text-white">{plan.credits.images}</span>
+                          <span className="text-white/60">Images</span>
+                          <span className="font-medium text-white">{plan.credits.images}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-white/70">Vidéos</span>
-                          <span className="font-semibold text-white">{plan.credits.videos}</span>
+                          <span className="text-white/60">Vidéos</span>
+                          <span className="font-medium text-white">{plan.credits.videos}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-white/70">Jeux 3D</span>
-                          <span className="font-semibold text-white">{plan.credits.games}</span>
+                          <span className="text-white/60">Jeux 3D</span>
+                          <span className="font-medium text-white">{plan.credits.games}</span>
                         </div>
                       </div>
                     )}
                     <ul className="space-y-3">
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-2">
-                          <Check className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
-                          <span className="text-sm text-white/80">{feature}</span>
+                          <Check className="w-4 h-4 text-white/80 flex-shrink-0 mt-0.5" />
+                          <span className="text-sm text-white/75">{feature}</span>
                         </li>
                       ))}
                       {plan.limitations?.map((limitation) => (
                         <li key={limitation} className="flex items-start gap-2">
-                          <span className="w-5 h-5 flex-shrink-0 text-white/30 text-center">×</span>
-                          <span className="text-sm text-white/40 line-through">{limitation}</span>
+                          <span className="w-4 h-4 flex-shrink-0 text-white/25 text-center">×</span>
+                          <span className="text-sm text-white/35 line-through">{limitation}</span>
                         </li>
                       ))}
                     </ul>
                     <Button
-                      className={`w-full ${
+                      className={`w-full rounded-full ${
                         plan.popular
-                          ? 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600'
-                          : 'bg-white/10 hover:bg-white/20'
-                      } text-white border-0`}
+                          ? 'bg-white text-black hover:bg-white/90'
+                          : 'bg-white/[0.04] border border-white/10 hover:bg-white/[0.08] text-white'
+                      } border-0`}
                     >
-                      {plan.name === 'Gratuit' ? 'Commencer Gratuitement' :
-                       plan.name === 'Enterprise' ? 'Nous Contacter' : 'Choisir ce Plan'}
+                      {plan.name === 'Gratuit' ? 'Commencer gratuitement' :
+                       plan.name === 'Enterprise' ? 'Nous contacter' : 'Choisir ce plan'}
                     </Button>
                   </CardContent>
                 </Card>
@@ -227,40 +220,40 @@ export default function PricingPage() {
         {/* Credit Packs */}
         <div className="mb-20">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-              Packs de Crédits à la Carte
+            <h2 className="font-serif text-3xl text-white mb-4">
+              Packs de crédits à la carte
             </h2>
-            <p className="text-white/70">
+            <p className="text-white/55">
               Achetez uniquement ce dont vous avez besoin, sans abonnement
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {creditPacks.map((pack) => {
               const Icon = pack.icon
               return (
-                <Card key={pack.type} className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border-white/10">
+                <Card key={pack.type} className="bg-white/[0.02] backdrop-blur-sm border-white/8">
                   <CardHeader>
                     <div className="flex items-center gap-3 mb-2">
-                      <Icon className={`w-6 h-6 ${pack.color}`} />
-                      <CardTitle className="text-xl text-white">{pack.type}</CardTitle>
+                      <Icon className="w-5 h-5 text-white" />
+                      <CardTitle className="font-serif text-xl text-white">{pack.type}</CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {pack.packs.map((p, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                        className="flex items-center justify-between p-4 bg-white/[0.02] border border-white/8 rounded-xl hover:bg-white/[0.04] transition-colors"
                       >
                         <div>
-                          <p className="font-semibold text-white">{p.credits} crédits</p>
+                          <p className="font-medium text-white">{p.credits} crédits</p>
                           {p.savings && (
-                            <Badge variant="outline" className="mt-1 text-xs border-green-500/50 text-green-400">
+                            <Badge variant="outline" className="mt-1 text-[10px] border-white/15 bg-white/[0.03] text-white/70 uppercase tracking-[0.15em]">
                               Économisez {p.savings}
                             </Badge>
                           )}
                         </div>
-                        <Button size="sm" className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white border-0">
+                        <Button size="sm" className="bg-white text-black hover:bg-white/90 rounded-full border-0">
                           ${p.price}
                         </Button>
                       </div>
@@ -274,35 +267,35 @@ export default function PricingPage() {
 
         {/* FAQ Section */}
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-12">
-            Questions Fréquentes
+          <h2 className="font-serif text-3xl text-white text-center mb-12">
+            Questions fréquentes
           </h2>
-          <div className="space-y-6">
-            <Card className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border-white/10">
+          <div className="space-y-4">
+            <Card className="bg-white/[0.02] backdrop-blur-sm border-white/8">
               <CardHeader>
                 <CardTitle className="text-lg text-white">Comment fonctionnent les crédits ?</CardTitle>
               </CardHeader>
-              <CardContent className="text-white/70">
+              <CardContent className="text-white/60">
                 <p>Chaque création consomme un crédit du type correspondant. Les crédits n’expirent jamais
                 et peuvent être utilisés à tout moment. Vous pouvez également acheter des packs à la carte.</p>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border-white/10">
+            <Card className="bg-white/[0.02] backdrop-blur-sm border-white/8">
               <CardHeader>
                 <CardTitle className="text-lg text-white">Puis-je annuler mon abonnement ?</CardTitle>
               </CardHeader>
-              <CardContent className="text-white/70">
+              <CardContent className="text-white/60">
                 <p>Oui, vous pouvez annuler à tout moment. Vos crédits restants seront conservés et
                 vous pourrez continuer à les utiliser même après l’annulation.</p>
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-sm border-white/10">
+            <Card className="bg-white/[0.02] backdrop-blur-sm border-white/8">
               <CardHeader>
                 <CardTitle className="text-lg text-white">Quels moyens de paiement acceptez-vous ?</CardTitle>
               </CardHeader>
-              <CardContent className="text-white/70">
+              <CardContent className="text-white/60">
                 <p>Nous acceptons les cartes de crédit (Visa, Mastercard, Amex) via Stripe,
                 ainsi que PayPal pour plus de flexibilité.</p>
               </CardContent>
@@ -312,21 +305,21 @@ export default function PricingPage() {
 
         {/* CTA Section */}
         <div className="mt-20 text-center">
-          <Card className="max-w-2xl mx-auto bg-gradient-to-br from-blue-600/20 to-cyan-600/20 backdrop-blur-sm border-blue-500/30">
+          <Card className="max-w-2xl mx-auto bg-white/[0.02] backdrop-blur-sm border-white/10">
             <CardContent className="p-8 sm:p-12">
-              <Sparkles className="w-12 h-12 text-blue-400 mx-auto mb-4" />
-              <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+              <Sparkles className="w-10 h-10 text-white/80 mx-auto mb-4" />
+              <h3 className="font-serif text-3xl sm:text-4xl text-white mb-4">
                 Prêt à créer vos rêves ?
               </h3>
-              <p className="text-white/70 mb-6">
+              <p className="text-white/60 mb-6">
                 Essayez gratuitement, aucune carte de crédit requise
               </p>
               <Link href="/dreamquest">
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white text-lg px-10 py-7 h-auto shadow-2xl shadow-blue-500/30 border-0"
+                  className="bg-white text-black hover:bg-white/90 rounded-full px-10 py-6 h-auto border-0"
                 >
-                  Commencer Maintenant
+                  Commencer maintenant
                 </Button>
               </Link>
             </CardContent>

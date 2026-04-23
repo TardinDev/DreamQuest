@@ -37,11 +37,10 @@ const OUTPUTS: Array<{
   label: string
   tagline: string
   icon: typeof ImageIcon
-  accent: string
 }> = [
-  { id: 'image', label: 'Image', tagline: 'Still HD 1024px', icon: ImageIcon, accent: 'from-fuchsia-400 via-pink-400 to-rose-400' },
-  { id: 'video', label: 'Vidéo', tagline: 'Storyboard 6 plans', icon: VideoIcon, accent: 'from-sky-400 via-cyan-400 to-blue-400' },
-  { id: 'game', label: 'Monde 3D', tagline: 'Unity WebGL jouable', icon: GamepadIcon, accent: 'from-amber-300 via-orange-400 to-rose-400' },
+  { id: 'image', label: 'Image', tagline: 'Still HD 1024px', icon: ImageIcon },
+  { id: 'video', label: 'Vidéo', tagline: 'Storyboard 6 plans', icon: VideoIcon },
+  { id: 'game', label: 'Monde 3D', tagline: 'Unity WebGL jouable', icon: GamepadIcon },
 ]
 
 const STYLES: Array<{ id: StyleType; label: string; hint: string; palette: string[] }> = [
@@ -51,11 +50,11 @@ const STYLES: Array<{ id: StyleType; label: string; hint: string; palette: strin
   { id: 'surreal',   label: 'Surréel',   hint: 'Dalí · Moebius',     palette: ['#0F0A1F', '#C026D3', '#06B6D4'] },
 ]
 
-const MOODS: Array<{ id: MoodType; label: string; hint: string; gradient: string }> = [
-  { id: 'calm',       label: 'Apaisé',    hint: 'Drones ambient',    gradient: 'from-blue-500/40 to-emerald-500/30' },
-  { id: 'tense',      label: 'Tendu',     hint: 'Cordes dissonantes', gradient: 'from-rose-500/40 to-orange-500/30' },
-  { id: 'mystic',     label: 'Mystique',  hint: 'Chœurs cristallins', gradient: 'from-fuchsia-500/40 to-indigo-500/30' },
-  { id: 'nostalgic',  label: 'Nostalgique', hint: 'Piano lo-fi',     gradient: 'from-amber-500/40 to-pink-500/30' },
+const MOODS: Array<{ id: MoodType; label: string; hint: string }> = [
+  { id: 'calm',       label: 'Apaisé',    hint: 'Drones ambient' },
+  { id: 'tense',      label: 'Tendu',     hint: 'Cordes dissonantes' },
+  { id: 'mystic',     label: 'Mystique',  hint: 'Chœurs cristallins' },
+  { id: 'nostalgic',  label: 'Nostalgique', hint: 'Piano lo-fi' },
 ]
 
 const LENGTHS: Array<{ id: LengthType; label: string; hint: string }> = [
@@ -185,10 +184,10 @@ export function DreamFormWithSteps() {
             <div key={s.n} className="flex flex-1 items-center gap-3">
               <div
                 className={cn(
-                  'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold transition-all duration-500',
-                  done && 'border-white/40 bg-white text-black',
-                  active && 'border-white/40 bg-white/10 text-white shadow-[0_0_20px_rgba(192,132,252,0.5)]',
-                  !done && !active && 'border-white/10 bg-white/[0.03] text-white/40',
+                  'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold transition-all duration-300',
+                  done && 'border-white/30 bg-white text-black',
+                  active && 'border-white/30 bg-white/[0.06] text-white',
+                  !done && !active && 'border-white/8 bg-white/[0.02] text-white/35',
                 )}
               >
                 {done ? <Check className="h-4 w-4" /> : s.n}
@@ -202,7 +201,7 @@ export function DreamFormWithSteps() {
                 </span>
               </div>
               {i < STEPS.length - 1 && (
-                <div className="h-px flex-1 bg-gradient-to-r from-white/20 to-transparent" />
+                <div className="h-px flex-1 bg-white/8" />
               )}
             </div>
           )
@@ -223,13 +222,13 @@ export function DreamFormWithSteps() {
             className="space-y-8"
           >
             <header className="space-y-3">
-              <Badge variant="outline" className="border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.25em] text-white/70">
+              <Badge variant="outline" className="border-white/10 bg-white/[0.03] px-2.5 py-0.5 text-[10px] uppercase tracking-[0.25em] text-white/60">
                 01 — Le rêve
               </Badge>
               <h2 className="font-serif text-4xl leading-tight text-white sm:text-5xl">
-                Racontez-nous votre <span className="italic text-gradient-static">rêve.</span>
+                Racontez-nous votre <span className="italic text-white/70">rêve.</span>
               </h2>
-              <p className="text-white/60">
+              <p className="text-white/55">
                 Soyez spécifique : symboles, lieux, personnages, émotions.
                 L’IA interprète les détails comme un scénariste.
               </p>
@@ -250,11 +249,11 @@ export function DreamFormWithSteps() {
                   rows={8}
                   {...register('dreamText')}
                   aria-invalid={errors.dreamText ? 'true' : 'false'}
-                  className="min-h-[200px] resize-none rounded-2xl border-white/10 bg-white/[0.03] text-base leading-relaxed text-white placeholder:text-white/30 focus-visible:ring-white/30"
+                  className="min-h-[200px] resize-none rounded-xl border-white/8 bg-white/[0.02] text-base leading-relaxed text-white placeholder:text-white/25 focus-visible:ring-white/20"
                 />
-                <div className="pointer-events-none absolute inset-x-4 bottom-3 h-0.5 overflow-hidden rounded-full bg-white/5">
+                <div className="pointer-events-none absolute inset-x-4 bottom-3 h-0.5 overflow-hidden rounded-full bg-white/[0.04]">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-fuchsia-400 to-sky-400 transition-all duration-500"
+                    className="h-full rounded-full bg-white/60 transition-all duration-500"
                     style={{ width: `${charProgress}%` }}
                   />
                 </div>
@@ -279,17 +278,17 @@ export function DreamFormWithSteps() {
                 variant="ghost"
                 onClick={handleRecordClick}
                 className={cn(
-                  'group relative h-14 w-full cursor-pointer rounded-2xl border text-base transition-all duration-300',
+                  'group relative h-14 w-full cursor-pointer rounded-xl border text-base transition-all duration-300',
                   isRecording
-                    ? 'border-rose-400/60 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20'
-                    : 'border-white/10 bg-white/[0.03] text-white hover:border-white/25 hover:bg-white/[0.06]',
+                    ? 'border-white/40 bg-white/[0.06] text-white hover:bg-white/[0.09]'
+                    : 'border-white/8 bg-white/[0.02] text-white hover:border-white/20 hover:bg-white/[0.04]',
                 )}
               >
                 <Mic className={cn('mr-2 h-4 w-4', isRecording && 'animate-pulse')} />
                 {isRecording ? 'Arrêter l’enregistrement' : 'Démarrer l’enregistrement'}
               </Button>
               {audioUrl && (
-                <p className="flex items-center gap-2 text-sm text-emerald-400">
+                <p className="flex items-center gap-2 text-sm text-white/70">
                   <Check className="h-4 w-4" /> Audio enregistré avec succès
                 </p>
               )}
@@ -300,7 +299,7 @@ export function DreamFormWithSteps() {
               onClick={nextStep}
               size="lg"
               disabled={(!dreamText || dreamText.length < 30) && !audioUrl}
-              className="group h-14 w-full cursor-pointer rounded-2xl bg-white text-base font-semibold text-black transition-all duration-300 hover:bg-white/90 disabled:opacity-40"
+              className="group h-14 w-full cursor-pointer rounded-xl bg-white text-base font-semibold text-black transition-all duration-300 hover:bg-white/90 disabled:opacity-40"
             >
               Continuer vers l’esthétique
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -321,31 +320,31 @@ export function DreamFormWithSteps() {
             className="space-y-10"
           >
             <header className="space-y-3">
-              <Badge variant="outline" className="border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.25em] text-white/70">
+              <Badge variant="outline" className="border-white/10 bg-white/[0.03] px-2.5 py-0.5 text-[10px] uppercase tracking-[0.25em] text-white/60">
                 02 — L’esthétique
               </Badge>
               <h2 className="font-serif text-4xl leading-tight text-white sm:text-5xl">
-                Sculptez l’<span className="italic text-gradient-static">atmosphère.</span>
+                Sculptez l’<span className="italic text-white/70">atmosphère.</span>
               </h2>
-              <p className="text-white/60">
+              <p className="text-white/55">
                 Chaque choix pilote l’éclairage, la palette et le tempo du rendu final.
               </p>
             </header>
 
             {/* Output type */}
             <fieldset className="space-y-3">
-              <legend className="text-xs uppercase tracking-[0.25em] text-white/50">Format de sortie</legend>
+              <legend className="text-xs uppercase tracking-[0.25em] text-white/45">Format de sortie</legend>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 {OUTPUTS.map((o) => {
                   const Icon = o.icon
                   const selected = outputType === o.id
                   return (
-                    <RadioCard key={o.id} selected={selected} accent={o.accent} onClick={() => setValue('outputType', o.id)}>
+                    <RadioCard key={o.id} selected={selected} onClick={() => setValue('outputType', o.id)}>
                       <input type="radio" value={o.id} {...register('outputType')} className="sr-only" />
-                      <Icon className={cn('h-6 w-6 transition-colors', selected ? 'text-white' : 'text-white/60')} />
+                      <Icon className={cn('h-6 w-6 transition-colors', selected ? 'text-white' : 'text-white/55')} />
                       <div className="mt-2">
                         <div className="font-serif text-2xl text-white">{o.label}</div>
-                        <div className="text-[11px] uppercase tracking-[0.2em] text-white/50">{o.tagline}</div>
+                        <div className="text-[11px] uppercase tracking-[0.2em] text-white/45">{o.tagline}</div>
                       </div>
                     </RadioCard>
                   )
@@ -355,7 +354,7 @@ export function DreamFormWithSteps() {
 
             {/* Visual Style */}
             <fieldset className="space-y-3">
-              <legend className="text-xs uppercase tracking-[0.25em] text-white/50">Style visuel</legend>
+              <legend className="text-xs uppercase tracking-[0.25em] text-white/45">Style visuel</legend>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {STYLES.map((s) => {
                   const selected = style === s.id
@@ -363,7 +362,7 @@ export function DreamFormWithSteps() {
                     <RadioCard key={s.id} selected={selected} onClick={() => setValue('style', s.id)}>
                       <input type="radio" value={s.id} {...register('style')} className="sr-only" />
                       <div className="font-serif text-xl text-white">{s.label}</div>
-                      <div className="text-[11px] uppercase tracking-[0.18em] text-white/50">{s.hint}</div>
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">{s.hint}</div>
                       <div className="mt-3 flex gap-1">
                         {s.palette.map((c) => (
                           <span
@@ -381,17 +380,16 @@ export function DreamFormWithSteps() {
 
             {/* Mood */}
             <fieldset className="space-y-3">
-              <legend className="text-xs uppercase tracking-[0.25em] text-white/50">Humeur</legend>
+              <legend className="text-xs uppercase tracking-[0.25em] text-white/45">Humeur</legend>
               <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 {MOODS.map((m) => {
                   const selected = mood === m.id
                   return (
                     <RadioCard key={m.id} selected={selected} onClick={() => setValue('mood', m.id)}>
                       <input type="radio" value={m.id} {...register('mood')} className="sr-only" />
-                      <div className={cn('absolute inset-0 bg-gradient-to-br transition-opacity duration-500', m.gradient, selected ? 'opacity-60' : 'opacity-0 group-hover:opacity-30')} />
                       <div className="relative z-10">
                         <div className="font-serif text-xl text-white">{m.label}</div>
-                        <div className="text-[11px] uppercase tracking-[0.18em] text-white/60">{m.hint}</div>
+                        <div className="text-[11px] uppercase tracking-[0.18em] text-white/55">{m.hint}</div>
                       </div>
                     </RadioCard>
                   )
@@ -401,7 +399,7 @@ export function DreamFormWithSteps() {
 
             {/* Length */}
             <fieldset className="space-y-3">
-              <legend className="text-xs uppercase tracking-[0.25em] text-white/50">Durée</legend>
+              <legend className="text-xs uppercase tracking-[0.25em] text-white/45">Durée</legend>
               <div className="grid grid-cols-2 gap-3">
                 {LENGTHS.map((l) => {
                   const selected = length === l.id
@@ -409,7 +407,7 @@ export function DreamFormWithSteps() {
                     <RadioCard key={l.id} selected={selected} onClick={() => setValue('length', l.id)}>
                       <input type="radio" value={l.id} {...register('length')} className="sr-only" />
                       <div className="font-serif text-xl text-white">{l.label}</div>
-                      <div className="text-[11px] uppercase tracking-[0.18em] text-white/50">{l.hint}</div>
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-white/45">{l.hint}</div>
                     </RadioCard>
                   )
                 })}
@@ -422,7 +420,7 @@ export function DreamFormWithSteps() {
                 onClick={prevStep}
                 size="lg"
                 variant="ghost"
-                className="h-14 flex-1 cursor-pointer rounded-2xl border border-white/10 bg-white/[0.03] text-white hover:bg-white/10"
+                className="h-14 flex-1 cursor-pointer rounded-xl border border-white/8 bg-white/[0.02] text-white hover:bg-white/[0.04]"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Retour
@@ -431,7 +429,7 @@ export function DreamFormWithSteps() {
                 type="button"
                 onClick={nextStep}
                 size="lg"
-                className="group h-14 flex-[2] cursor-pointer rounded-2xl bg-white text-base font-semibold text-black hover:bg-white/90"
+                className="group h-14 flex-[2] cursor-pointer rounded-xl bg-white text-base font-semibold text-black hover:bg-white/90"
               >
                 Revoir avant rendu
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -453,19 +451,19 @@ export function DreamFormWithSteps() {
             className="space-y-8"
           >
             <header className="space-y-3">
-              <Badge variant="outline" className="border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.25em] text-white/70">
+              <Badge variant="outline" className="border-white/10 bg-white/[0.03] px-2.5 py-0.5 text-[10px] uppercase tracking-[0.25em] text-white/60">
                 03 — Le lancement
               </Badge>
               <h2 className="font-serif text-4xl leading-tight text-white sm:text-5xl">
-                Prêt à <span className="italic text-gradient-static">rêver ?</span>
+                Prêt à <span className="italic text-white/70">rêver ?</span>
               </h2>
             </header>
 
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-8">
-              <div className="aurora opacity-40" aria-hidden />
+            <div className="relative overflow-hidden rounded-2xl border border-white/8 bg-white/[0.02] p-8">
+              <div className="hidden" aria-hidden />
               <div className="relative space-y-6">
                 <div>
-                  <div className="mb-2 text-xs uppercase tracking-[0.25em] text-white/50">Votre rêve</div>
+                  <div className="mb-2 text-xs uppercase tracking-[0.25em] text-white/45">Votre rêve</div>
                   <p className="font-serif text-xl leading-relaxed text-white/90 sm:text-2xl">
                     « {dreamText?.slice(0, 220) || 'Audio enregistré'}{dreamText && dreamText.length > 220 ? '…' : ''} »
                   </p>
@@ -488,7 +486,7 @@ export function DreamFormWithSteps() {
                 onClick={prevStep}
                 size="lg"
                 variant="ghost"
-                className="h-14 flex-1 cursor-pointer rounded-2xl border border-white/10 bg-white/[0.03] text-white hover:bg-white/10"
+                className="h-14 flex-1 cursor-pointer rounded-xl border border-white/8 bg-white/[0.02] text-white hover:bg-white/[0.04]"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Modifier
@@ -497,7 +495,7 @@ export function DreamFormWithSteps() {
                 type="submit"
                 size="lg"
                 disabled={isSubmitting}
-                className="group relative h-14 flex-[2] cursor-pointer overflow-hidden rounded-2xl bg-white text-base font-semibold text-black transition-all duration-300 hover:shadow-[0_20px_60px_-15px_rgba(192,132,252,0.8)]"
+                className="group relative h-14 flex-[2] cursor-pointer overflow-hidden rounded-xl bg-white text-base font-semibold text-black transition-all duration-300 hover:bg-white/90"
               >
                 <span className="relative z-10 inline-flex items-center">
                   {isSubmitting ? (
@@ -518,7 +516,7 @@ export function DreamFormWithSteps() {
 
 function SummaryChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="space-y-1 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+    <div className="space-y-1 rounded-xl border border-white/8 bg-white/[0.02] p-4">
       <div className="text-[10px] uppercase tracking-[0.2em] text-white/40">{label}</div>
       <div className="font-serif text-lg capitalize text-white">{value}</div>
     </div>

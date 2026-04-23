@@ -1,13 +1,18 @@
 """Dream-to-world generation pipeline.
 
 Two-stage AI pipeline:
-  1. Dream analysis — extract symbols, archetypes, emotions, sensory imagery.
+  1. Dream analysis — extract symbols, archetypes, emotions, sensory imagery
+     strictly grounded in what the user actually wrote.
   2. Output synthesis — craft a rich prompt, storyboard, or 3D blueprint
      grounded in the structured analysis, then enrich with style/mood presets.
 
 The analysis stage runs once and feeds every output type, so the same
 dream yields coherent image/video/game variants instead of three
 independent takes.
+
+Design principle: fidelity to the user's text. The model is explicitly
+forbidden from inventing elements that aren't implied by what the user
+wrote. Style and mood are aesthetic overlays, never narrative licence.
 """
 
 from __future__ import annotations
@@ -30,7 +35,7 @@ from schemas import (
 
 router = APIRouter()
 
-MODEL_ID = "claude-sonnet-4-5"
+MODEL_ID = "claude-opus-4-7"
 
 # Semantic presets shared between the analysis and synthesis stages.
 # Keeping these here (not in the prompt) lets the LLM focus on *interpretation*
@@ -66,6 +71,16 @@ MOOD_PRESETS: dict[str, dict[str, Any]] = {
 }
 
 
+FIDELITY_RULES = """FIDELITY RULES (non-negotiable):
+- Every concrete element (place, creature, object, action, colour, feeling) MUST be traceable to the user's text or be a restrained, named symbolic reading of it. If the dream says "forêt", do not output "ocean". If the dream says "oiseau de lumière", keep the bird — don't replace it with a dragon.
+- Preserve proper nouns, named characters and distinctive phrases verbatim.
+- Preserve the sequence of events in the order the user described them.
+- Preserve the language register of the user (poetic, matter-of-fact, first-person, etc.).
+- Do NOT invent new story beats, locations, or characters. If the dream is short, let the output be tightly scoped — better faithful than padded.
+- Style and mood are aesthetic overlays on top of the user's scene. They colour the scene; they never replace it.
+"""
+
+
 def _get_client() -> anthropic.Anthropic:
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
@@ -88,6 +103,12 @@ def _extract_json(text: str) -> dict[str, Any]:
     return json.loads(cleaned)
 
 
+def _collect_text(resp: anthropic.types.Message) -> str:
+    """Concatenate every text block — adaptive thinking interleaves thinking + text blocks."""
+    parts = [b.text for b in resp.content if getattr(b, "type", None) == "text"]
+    return "\n".join(parts).strip()
+
+
 async def analyze_dream(dream_text: str, style: str, mood: str) -> dict[str, Any]:
     """Stage 1 — structured dream interpretation.
 
@@ -99,58 +120,63 @@ async def analyze_dream(dream_text: str, style: str, mood: str) -> dict[str, Any
     system = (
         "You are a dream interpreter fluent in Jungian symbolism, cinematic "
         "worldbuilding, and sensory writing. You translate messy first-person "
-        "dream memories into rigorous, evocative creative briefs. You NEVER "
-        "invent facts not implied by the dream, but you ARE allowed to name "
-        "unstated atmospheres, archetypes, and symbolic resonance."
+        "dream memories into rigorous, evocative creative briefs.\n\n"
+        + FIDELITY_RULES
+        + "\nYou may name unstated atmospheres, archetypes, and symbolic resonance — "
+        "but every concrete noun in your output must be either present in the user's "
+        "text, or clearly a symbolic reading of something that IS in the text. "
+        "When in doubt, stay literal. Return STRICT JSON only, no prose, no fences."
     )
 
     user = f"""Analyze the following dream. Return STRICT JSON — no prose, no markdown fences.
 
-DREAM:
+DREAM (verbatim — every detail here is load-bearing):
 \"\"\"{dream_text}\"\"\"
 
-USER-CHOSEN AESTHETIC:
+USER-CHOSEN AESTHETIC (style & mood are overlays, NOT story replacements):
 - style: {style}
 - mood: {mood}
 
 Return this exact shape:
 {{
-  "title": "short evocative title, 2–5 words",
-  "logline": "one sentence capturing the dream's essence",
-  "symbols": ["3–6 recurring or striking symbols pulled directly from the dream"],
-  "archetypes": ["Jungian archetypes present, e.g. shadow, guide, threshold"],
-  "emotions": ["primary emotional beats, ordered by intensity"],
+  "title": "short evocative title, 2–5 words, drawn from the dream's imagery",
+  "logline": "one sentence capturing the dream's essence — faithful to what the user described",
+  "symbols": ["3–6 symbols pulled DIRECTLY from the dream text, each a word or short phrase the user actually used or clearly implied"],
+  "archetypes": ["Jungian archetypes present, e.g. shadow, guide, threshold — only those the dream actually supports"],
+  "emotions": ["primary emotional beats as they appear in the dream, ordered by intensity"],
   "setting": {{
-    "biome": "forest | desert | ocean | city | cosmos | liminal | domestic | ...",
+    "biome": "forest | desert | ocean | city | cosmos | liminal | domestic | ... — MUST match what the user described",
     "time_of_day": "dawn | day | dusk | night | timeless",
     "weather": "clear | rain | snow | fog | storm | aurora | ...",
     "scale": "intimate | grand | cosmic"
   }},
   "characters": [
-    {{"name": "...", "role": "guide | shadow | companion | threshold-guardian | stranger",
-      "description": "one vivid sentence"}}
+    {{"name": "use the user's name for them if given, else a short descriptive label",
+      "role": "guide | shadow | companion | threshold-guardian | stranger",
+      "description": "one vivid sentence faithful to how the user described them"}}
   ],
   "sensory_details": {{
-    "sight": ["..."],
-    "sound": ["..."],
-    "touch": ["..."],
-    "smell_or_taste": ["..."]
+    "sight": ["concrete visuals from the dream"],
+    "sound": ["sounds the dream implies or names"],
+    "touch": ["tactile impressions"],
+    "smell_or_taste": ["only if the dream supports it; else empty array"]
   }},
-  "narrative_arc": ["beat 1", "beat 2", "beat 3"],
-  "color_story": ["3–5 hex codes that capture the dream's palette"],
-  "tagline": "short poetic phrase, <=10 words"
+  "narrative_arc": ["beat 1 — as the dream opens", "beat 2 — middle", "beat 3 — how it ends or dissolves"],
+  "color_story": ["3–5 hex codes that capture the dream's palette, informed by the chosen style"],
+  "tagline": "short poetic phrase, <=10 words, echoing the dream's voice"
 }}"""
 
-    def _call() -> str:
-        resp = client.messages.create(
+    def _call() -> anthropic.types.Message:
+        return client.messages.create(
             model=MODEL_ID,
-            max_tokens=1500,
+            max_tokens=4000,
+            thinking={"type": "adaptive"},
             system=system,
             messages=[{"role": "user", "content": user}],
         )
-        return resp.content[0].text
 
-    raw = await asyncio.to_thread(_call)
+    resp = await asyncio.to_thread(_call)
+    raw = _collect_text(resp)
     try:
         return _extract_json(raw)
     except (json.JSONDecodeError, ValueError):
@@ -169,62 +195,98 @@ Return this exact shape:
         }
 
 
-async def generate_image_prompt(analysis: dict[str, Any], style: str, mood: str) -> dict[str, Any]:
+async def generate_image_prompt(
+    analysis: dict[str, Any], style: str, mood: str, dream_text: str
+) -> dict[str, Any]:
     client = _get_client()
     preset = STYLE_PRESETS.get(style, STYLE_PRESETS["surreal"])
 
-    user = f"""Write a single paragraph image-generation prompt (150–220 words) for this dream.
+    system = (
+        "You are a senior concept artist who writes precise, single-paragraph "
+        "image-generation prompts. You work from the user's dream and its "
+        "structured analysis. You do NOT invent subjects that aren't in the "
+        "user's text. You DO translate abstract feelings into specific "
+        "visual choices (framing, materials, light, palette).\n\n"
+        + FIDELITY_RULES
+    )
 
-ANALYSIS:
+    user = f"""Write ONE flowing paragraph (150–220 words) of image-generation prompt for this dream.
+
+USER'S DREAM (verbatim — the image must depict THIS scene, not a generic one):
+\"\"\"{dream_text}\"\"\"
+
+STRUCTURED ANALYSIS:
 {json.dumps(analysis, indent=2, ensure_ascii=False)}
 
 RENDER DIRECTIVES:
 - Visual style: {preset['render']}
-- Reference: {preset['reference']}
+- Reference look: {preset['reference']}
 - Mood: {mood}
 
 Rules:
-- Lead with subject + action, then setting, then lighting, then material detail, then camera.
-- Name specific colors from the color_story.
-- Include at least one symbol from analysis.symbols.
-- End with: "—no text, no watermarks, no borders."
-- Do NOT use bullet points. One flowing paragraph only."""
+- Start with the specific subject + action from the user's dream, then setting, then lighting, then material detail, then camera.
+- Name specific colors from analysis.color_story.
+- Include at least two symbols from analysis.symbols, by name.
+- If the dream named a character, place them in frame with their described appearance.
+- End the paragraph with: "—no text, no watermarks, no borders."
+- Do NOT use bullet points. One flowing paragraph only.
+- Do NOT introduce elements the user did not describe."""
 
-    def _call() -> str:
-        resp = client.messages.create(
+    def _call() -> anthropic.types.Message:
+        return client.messages.create(
             model=MODEL_ID,
-            max_tokens=600,
+            max_tokens=2000,
+            thinking={"type": "adaptive"},
+            system=system,
             messages=[{"role": "user", "content": user}],
         )
-        return resp.content[0].text.strip()
 
-    prompt = await asyncio.to_thread(_call)
+    resp = await asyncio.to_thread(_call)
+    prompt = _collect_text(resp)
 
     return {
         "prompt": prompt,
-        "negative_prompt": "text, watermark, signature, border, low quality, blurry, distorted anatomy",
+        "negative_prompt": "text, watermark, signature, border, low quality, blurry, distorted anatomy, generic stock imagery, elements unrelated to the source dream",
         "aspect_ratio": "1:1",
         "placeholder_url": "https://placehold.co/1024x1024/0B1220/E2E8F0?text=Dream+Image",
     }
 
 
-async def generate_video_storyboard(analysis: dict[str, Any], style: str, mood: str) -> dict[str, Any]:
+async def generate_video_storyboard(
+    analysis: dict[str, Any], style: str, mood: str, dream_text: str
+) -> dict[str, Any]:
     client = _get_client()
     preset = STYLE_PRESETS.get(style, STYLE_PRESETS["surreal"])
     mood_preset = MOOD_PRESETS.get(mood, MOOD_PRESETS["mystic"])
 
-    user = f"""Produce a 6-shot cinematic storyboard as STRICT JSON — no prose, no fences.
+    system = (
+        "You are a cinematic director who storyboards dream sequences. "
+        "Your 6 shots MUST tell the user's dream in the order they described it — "
+        "not a generic cinematic arc. Every subject, setting and action in a shot "
+        "must be traceable to the user's text or the structured analysis.\n\n"
+        + FIDELITY_RULES
+        + "\nReturn STRICT JSON only. No prose. No markdown fences."
+    )
 
-ANALYSIS:
+    user = f"""Produce a 6-shot storyboard as STRICT JSON.
+
+USER'S DREAM (the sequence of shots must follow the events here, in order):
+\"\"\"{dream_text}\"\"\"
+
+STRUCTURED ANALYSIS:
 {json.dumps(analysis, indent=2, ensure_ascii=False)}
 
 RENDER: {preset['render']}
 TEMPO: {mood_preset['tempo']}
 AUDIO PALETTE: {mood_preset['audio']}
 
+Shot allocation rule: map the 6 shots onto analysis.narrative_arc when possible.
+If the dream has 3 narrative beats, devote roughly 2 shots per beat. If it has
+fewer, linger on what the user described rather than inventing new moments.
+
 Schema:
 {{
-  "title": "...",
+  "title": "use analysis.title",
   "runtime_seconds": 30,
   "aspect_ratio": "16:9",
   "shots": [
@@ -233,26 +295,28 @@ Schema:
       "duration_s": 5,
       "composition": "wide | medium | close | extreme-close | aerial | POV",
       "camera_move": "static | dolly-in | pan-left | crane-up | orbit | handheld",
-      "subject": "...",
-      "action": "...",
-      "lighting": "...",
-      "color_notes": "dominant hex + accent",
-      "sound_design": "...",
+      "subject": "the specific subject from the user's dream at this moment",
+      "action": "what the subject does, per the user's text",
+      "lighting": "concrete lighting that matches the setting and mood",
+      "color_notes": "dominant hex + accent, drawn from analysis.color_story",
+      "sound_design": "sounds faithful to the dream + mood audio palette",
       "transition_out": "cut | dissolve | whip-pan | match-cut"
     }}
   ],
   "score": "one-sentence description of the music bed"
 }}"""
 
-    def _call() -> str:
-        resp = client.messages.create(
+    def _call() -> anthropic.types.Message:
+        return client.messages.create(
             model=MODEL_ID,
-            max_tokens=2000,
+            max_tokens=4000,
+            thinking={"type": "adaptive"},
+            system=system,
             messages=[{"role": "user", "content": user}],
         )
-        return resp.content[0].text
 
-    raw = await asyncio.to_thread(_call)
+    resp = await asyncio.to_thread(_call)
+    raw = _collect_text(resp)
     try:
         storyboard = _extract_json(raw)
     except (json.JSONDecodeError, ValueError):
@@ -265,21 +329,39 @@ Schema:
 
 
 async def generate_game_blueprint(
-    analysis: dict[str, Any], style: str, mood: str, length: str
+    analysis: dict[str, Any], style: str, mood: str, length: str, dream_text: str
 ) -> dict[str, Any]:
     client = _get_client()
     preset = STYLE_PRESETS.get(style, STYLE_PRESETS["surreal"])
     mood_preset = MOOD_PRESETS.get(mood, MOOD_PRESETS["mystic"])
 
+    system = (
+        "You are a 3D game designer translating dreams into playable Unity "
+        "WebGL blueprints. The world you design must match the dream the user "
+        "described — its biome, its objects, its characters, its emotional arc. "
+        "You do NOT pad the blueprint with generic game tropes.\n\n"
+        + FIDELITY_RULES
+        + "\nReturn STRICT JSON only. No prose. No markdown fences."
+    )
+
     user = f"""Design a playable 3D world blueprint for Unity. STRICT JSON only.
 
-ANALYSIS:
+USER'S DREAM (the world is THIS place, not a generic dreamscape):
+\"\"\"{dream_text}\"\"\"
+
+STRUCTURED ANALYSIS:
 {json.dumps(analysis, indent=2, ensure_ascii=False)}
 
 CONSTRAINTS:
 - Style directive: {preset['render']}
 - Target length: {length} (short=5–10min loop, long=15–30min)
 - Palette hint: {preset['palette']}
+
+Rules:
+- world / biome_tags MUST match analysis.setting.biome — don't substitute "forest" with "space" just because space sounds more cinematic.
+- characters MUST mirror analysis.characters. If the dream has no characters, the characters array stays empty.
+- interactive_elements should pick up on analysis.symbols — the items the user mentioned should be touchable things in the world.
+- progression zones should reflect analysis.narrative_arc, in order.
 
 Schema (all fields required):
 {{
@@ -292,21 +374,23 @@ Schema (all fields required):
   "terrain": {{"type": "organic | geometric | hybrid", "elevation": "flat | medium | mountainous", "water": true|false}},
   "characters": [{{"type": "...", "role": "friendly | neutral | mysterious | hostile", "behavior": "patrol | idle | follow | flee"}}],
   "lighting": {{"ambient": 0.0-1.0, "directional": 0.0-1.0, "fog_density": 0.0-1.0, "color_temperature_k": 2000-10000}},
-  "interactive_elements": [{{"id": "...", "type": "pickup | door | lore | mechanism", "description": "..."}}],
+  "interactive_elements": [{{"id": "...", "type": "pickup | door | lore | mechanism", "description": "faithful to one of the user's symbols"}}],
   "special_effects": ["particles", "volumetric_fog", "bloom", "..."],
   "soundscape": {{"ambient": "...", "music_style": "...", "key_sfx": ["..."]}},
   "progression": [{{"zone": "...", "objective": "...", "unlocks": "..."}}]
 }}"""
 
-    def _call() -> str:
-        resp = client.messages.create(
+    def _call() -> anthropic.types.Message:
+        return client.messages.create(
             model=MODEL_ID,
-            max_tokens=2500,
+            max_tokens=5000,
+            thinking={"type": "adaptive"},
+            system=system,
             messages=[{"role": "user", "content": user}],
         )
-        return resp.content[0].text
 
-    raw = await asyncio.to_thread(_call)
+    resp = await asyncio.to_thread(_call)
+    raw = _collect_text(resp)
     try:
         blueprint = _extract_json(raw)
     except (json.JSONDecodeError, ValueError):
@@ -377,7 +461,7 @@ async def generate_dream_output(request: Request, body: CreateJobRequest) -> Cre
         await _persist()
 
         if body.output_type == OutputTypeEnum.IMAGE:
-            image = await generate_image_prompt(analysis, body.style.value, body.mood.value)
+            image = await generate_image_prompt(analysis, body.style.value, body.mood.value, final_dream_text)
             job_data["result"] = {
                 "output_type": "image",
                 "image_url": image["placeholder_url"],
@@ -386,7 +470,7 @@ async def generate_dream_output(request: Request, body: CreateJobRequest) -> Cre
                 "analysis": analysis,
             }
         elif body.output_type == OutputTypeEnum.VIDEO:
-            video = await generate_video_storyboard(analysis, body.style.value, body.mood.value)
+            video = await generate_video_storyboard(analysis, body.style.value, body.mood.value, final_dream_text)
             job_data["result"] = {
                 "output_type": "video",
                 "video_url": video["placeholder_url"],
@@ -398,7 +482,7 @@ async def generate_dream_output(request: Request, body: CreateJobRequest) -> Cre
             job_data["progress"] = 80
             await _persist()
             blueprint = await generate_game_blueprint(
-                analysis, body.style.value, body.mood.value, body.length.value
+                analysis, body.style.value, body.mood.value, body.length.value, final_dream_text
             )
             job_data["result"] = {
                 "output_type": "game",

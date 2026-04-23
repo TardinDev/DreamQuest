@@ -22,19 +22,19 @@ export default async function PlayPage({ params }: PlayPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Shared Dream World</h1>
-            <p className="text-muted-foreground text-sm">
+            <h1 className="font-serif text-4xl mb-2 text-white">Shared dream world</h1>
+            <p className="text-white/50 text-xs uppercase tracking-[0.2em]">
               Job ID: {jobId}
             </p>
           </div>
           <div className="flex gap-2">
             <ShareButton jobId={jobId} title="Share This Dream" />
             <Link href="/dreamquest">
-              <Button>
+              <Button className="rounded-full bg-white text-black hover:bg-white/90">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Create Your Own
               </Button>

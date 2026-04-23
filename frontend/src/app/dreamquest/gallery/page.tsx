@@ -21,7 +21,6 @@ type GalleryItem = {
   type: string
   mood: string
   length: string
-  gradient: string
   badge: string
   icon: LucideIcon
   mediaType: 'image' | 'video'
@@ -38,7 +37,6 @@ const galleryItems: GalleryItem[] = [
     type: 'Vidéo générative',
     mood: 'Apaisant',
     length: '1 min',
-    gradient: 'from-orange-500/80 via-rose-500/70 to-indigo-500/70',
     badge: 'Aventure céleste',
     icon: Sunrise,
     mediaType: 'image',
@@ -53,7 +51,6 @@ const galleryItems: GalleryItem[] = [
     type: 'Image cinématographique',
     mood: 'Mystique',
     length: 'Instantané',
-    gradient: 'from-emerald-500/80 via-teal-500/70 to-purple-600/60',
     badge: 'Nature vivante',
     icon: Trees,
     mediaType: 'image',
@@ -68,7 +65,6 @@ const galleryItems: GalleryItem[] = [
     type: 'Monde jouable (démo)',
     mood: 'Énergique',
     length: '5 min',
-    gradient: 'from-amber-500/70 via-red-500/60 to-slate-800/80',
     badge: 'Exploration 3D',
     icon: Gamepad2,
     mediaType: 'image',
@@ -83,7 +79,6 @@ const galleryItems: GalleryItem[] = [
     type: 'Vidéo générative',
     mood: 'Contemplatif',
     length: '45 s',
-    gradient: 'from-cyan-500/80 via-blue-500/70 to-indigo-600/70',
     badge: 'Rêverie aquatique',
     icon: Waves,
     mediaType: 'image',
@@ -98,7 +93,6 @@ const galleryItems: GalleryItem[] = [
     type: 'Image panoramique',
     mood: 'Épique',
     length: 'Instantané',
-    gradient: 'from-sky-500/80 via-violet-500/70 to-fuchsia-600/60',
     badge: 'Paysage épique',
     icon: Mountain,
     mediaType: 'image',
@@ -113,7 +107,6 @@ const galleryItems: GalleryItem[] = [
     type: 'Vidéo générative',
     mood: 'Onirique',
     length: '30 s',
-    gradient: 'from-blue-600/80 via-purple-600/70 to-black/80',
     badge: 'Rituels stellaires',
     icon: Sparkles,
     mediaType: 'video',
@@ -125,29 +118,29 @@ const galleryItems: GalleryItem[] = [
 
 export default function GalleryPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="space-y-2">
-            <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
-              <Sparkles className="mr-2 h-4 w-4" />
+            <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-medium uppercase tracking-[0.2em] text-white/70">
+              <Sparkles className="mr-2 h-3 w-3" />
               Galerie des rêves
             </span>
-            <h1 className="text-4xl font-bold">Inspiration pour votre prochain monde onirique</h1>
-            <p className="max-w-2xl text-muted-foreground">
+            <h1 className="font-serif text-4xl text-white sm:text-5xl">Inspiration pour votre prochain monde onirique</h1>
+            <p className="max-w-2xl text-white/55">
               Explorez une sélection d\u2019expériences imaginaires générées avec DreamQuest. Inspirez-vous
               des styles, ambiances et formats pour créer votre propre aventure.
             </p>
           </div>
           <div className="flex gap-3">
             <Link href="/">
-              <Button variant="ghost">
+              <Button variant="ghost" className="rounded-full border border-white/10 bg-transparent text-white hover:bg-white/[0.04]">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Accueil
               </Button>
             </Link>
             <Link href="/dreamquest">
-              <Button>
+              <Button className="rounded-full bg-white text-black hover:bg-white/90">
                 Créer mon rêve
                 <Sparkles className="ml-2 h-4 w-4" />
               </Button>
@@ -159,7 +152,7 @@ export default function GalleryPage() {
           {galleryItems.map((item) => {
             const Icon = item.icon
             return (
-              <Card key={item.id} className="overflow-hidden border border-white/10 bg-black/40">
+              <Card key={item.id} className="overflow-hidden border border-white/8 bg-white/[0.02] transition-all duration-300 hover:border-white/20">
                 <div className="relative h-56 w-full overflow-hidden">
                   {item.mediaType === 'image' ? (
                     <Image
@@ -180,37 +173,37 @@ export default function GalleryPage() {
                       playsInline
                     />
                   )}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-40`} />
-                  <div className="absolute top-4 left-4 inline-flex items-center gap-2 rounded-full bg-black/50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
-                    <Icon className="h-4 w-4" />
+                  <div className="absolute inset-0 bg-black/30" />
+                  <div className="absolute top-4 left-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.2em] text-white backdrop-blur-sm">
+                    <Icon className="h-3 w-3" />
                     {item.badge}
                   </div>
-                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-white drop-shadow-md">
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-[10px] font-medium uppercase tracking-[0.2em] text-white/90 drop-shadow-md">
                     <span>Vision conceptuelle</span>
                     <span>{item.type}</span>
                   </div>
                 </div>
                 <CardContent className="space-y-4 p-6">
                   <div>
-                    <h2 className="text-xl font-semibold text-white">{item.title}</h2>
-                    <p className="mt-2 text-sm text-white/70">{item.description}</p>
+                    <h2 className="font-serif text-xl text-white">{item.title}</h2>
+                    <p className="mt-2 text-sm text-white/60">{item.description}</p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 text-xs uppercase text-white/60">
-                    <span className="rounded-full bg-white/10 px-3 py-1 tracking-wide">
+                  <div className="flex flex-wrap items-center gap-2 text-[10px] uppercase tracking-[0.15em] text-white/55">
+                    <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
                       Ambiance&nbsp;: {item.mood}
                     </span>
-                    <span className="rounded-full bg-white/10 px-3 py-1 tracking-wide">
+                    <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1">
                       Durée&nbsp;: {item.length}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-sm text-white/70">
-                    <span>Prototype</span>
+                  <div className="flex items-center justify-between text-sm text-white/60">
+                    <span className="text-xs uppercase tracking-[0.2em] text-white/40">Prototype</span>
                     <Link
                       href="/dreamquest"
-                      className="inline-flex items-center font-medium text-primary transition hover:text-primary/80"
+                      className="inline-flex items-center font-medium text-white transition hover:text-white/80"
                     >
                       Voir comment c’est créé
-                      <Play className="ml-2 h-4 w-4" />
+                      <Play className="ml-2 h-3 w-3" />
                     </Link>
                   </div>
                 </CardContent>
